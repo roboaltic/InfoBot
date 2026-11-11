@@ -26,13 +26,22 @@ def main():
     parser.add_argument('-h', '--help', action='help', help='Показати цю довідку та вийти')
     parser.add_argument("--demo", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--console", action="store_true", help="Запустити без графічного вікна")
+    parser.add_argument("--setup", action="store_true", help="Заповнити форму в терміналі та запустити бота без графічного вікна")
     parser.add_argument("--self-test", action="store_true", help="Запустити автономні тести; Telegram і SMTP не використовуються")
     args = parser.parse_args()
     if args.self_test:
         import unittest
         suite = unittest.defaultTestLoader.discover(str(ROOT / "tests"))
         return 0 if unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful() else 1
-    if args.console:
+    if args.setup:
+        from infobot.setup import configure
+        try:
+            if not configure():
+                return 0
+        except (ValueError, OSError, EOFError, KeyboardInterrupt):
+            print('\nНалаштування не завершено. Перевірте токен, числові ID та доступ до папки data.')
+            return 1
+    if args.console or args.setup:
         from infobot.runner import Runner
         try:
             settings = Settings.load(ROOT / "data" / "config.json")
