@@ -59,6 +59,10 @@ class FAQDialogs:
         if not item:
             self.say(user_id, 'Це запитання вже видалено. Оновіть список.', buttons([[('Оновити FAQ', 'faq')]]))
             return
+        draft = item.get('pending')
+        if edit and draft:
+            item = self.faq_catalog.preview(identifier)
+            notice += 'Чернетка: зміни ще не опубліковано. Перевірте попередній перегляд і затвердьте текст окремо.\n\n'
         items, revision = self.faq_catalog.snapshot()
         index = next((i for i, entry in enumerate(items) if entry['id'] == identifier), 0)
         text = notice + item['question'] + '\n\n' + item['answer']
@@ -72,6 +76,11 @@ class FAQDialogs:
                          [('Змінити відповідь', f'faqfield:{identifier}:answer')],
                          [('Змінити джерело', f'faqfield:{identifier}:source_url')],
                          [('Видалити запитання', f'faqremove:{identifier}')]])
+            if self.document_content:
+                rows.extend([[('Прив’язка до напрямів', f'faqfield:{identifier}:directions')],
+                             [('Прив’язка до співфінансування', f'faqfield:{identifier}:ratios')]])
+                if draft:
+                    rows.append([('Затвердити текст FAQ', f'faqapprove:{identifier}:{revision}')])
         rows.extend([[('До списку запитань', f'{"faqmanage" if edit else "faqpage"}:{index // PAGE_SIZE}')]])
         if not edit:
             rows.append([(self.nav_label('support'), 'new')])
@@ -104,7 +113,7 @@ class FAQDialogs:
             self.faq_edits[user_id] = {'action': 'add', 'field': 'question', 'revision': revision,
                                        'item': {'id': uuid.uuid4().hex[:20]}, 'expires': time.monotonic() + 1800}
             self.say(user_id, 'Введіть нове запитання одним рядком, до 60 одиниць UTF-16. Скасувати: /cancel.')
-        elif action == 'faqfield' and len(parts) == 3 and parts[2] in ('question', 'answer', 'source_url'):
+        elif action == 'faqfield' and len(parts) == 3 and parts[2] in ('question', 'answer', 'source_url', 'directions', 'ratios'):
             if not self.faq_catalog.get(identifier):
                 self.show_faq(user_id, manage=True)
                 return
@@ -114,7 +123,9 @@ class FAQDialogs:
                                        'revision': self.faq_catalog.revision, 'expires': time.monotonic() + 1800}
             prompts = {'question': 'Введіть нове запитання одним рядком, до 60 одиниць UTF-16.',
                        'answer': 'Введіть нову відповідь, до 3000 одиниць UTF-16. Після зміни попередня позначка перевірки та джерело прибираються; джерело можна додати окремо.',
-                       'source_url': 'Надішліть HTTPS-посилання на джерело або —, щоб прибрати посилання.'}
+                       'source_url': 'Надішліть HTTPS-посилання на джерело або —, щоб прибрати посилання.',
+                       'directions': 'Вкажіть через кому: create, develop, restore або * для всіх напрямів.',
+                       'ratios': 'Вкажіть через кому: 50_50, 70_30, 80_20 або * для всіх умов.'}
             self.say(user_id, prompts[field] + ' Скасувати: /cancel.')
         elif action == 'faqremove':
             if not self.faq_catalog.get(identifier):
@@ -123,6 +134,13 @@ class FAQDialogs:
             self.say(user_id, 'Видалити це запитання з FAQ? У каталозі має залишитися хоча б одне запитання.',
                      buttons([[('Так, видалити', f'faqdelete:{identifier}:{self.faq_catalog.revision}')],
                               [('Скасувати', 'faqmanage')]]))
+        elif action == 'faqapprove' and len(parts)==3 and parts[2].isdecimal() and len(parts[2])<16:
+            try:
+                self.faq_catalog.approve(identifier,int(parts[2]))
+            except (ValueError,OSError,RuntimeError) as error:
+                self.faq_error(user_id,error)
+                return
+            self.show_faq_answer(user_id,identifier,edit=True,notice='Текст FAQ затверджено й опубліковано. Правові застереження залишаються чинними.\n\n')
         elif action == 'faqdelete' and len(parts) == 3 and parts[2].isdecimal() and len(parts[2]) < 16:
             try:
                 self.faq_catalog.delete(identifier, int(parts[2]))
@@ -153,7 +171,13 @@ class FAQDialogs:
             return True
         field = state['field']
         try:
-            value = {'question': validate_question, 'answer': validate_answer, 'source_url': validate_source}[field](text)
+            if field in ('directions','ratios'):
+                value = [part.strip() for part in text.split(',')]
+                allowed = {'*','create','develop','restore'} if field=='directions' else {'*','50_50','70_30','80_20'}
+                if not value or any(part not in allowed for part in value):
+                    raise ValueError('Некоректна прив’язка. Використайте запропоновані значення.')
+            else:
+                value = {'question': validate_question, 'answer': validate_answer, 'source_url': validate_source}[field](text)
         except ValueError as error:
             self.say(user_id, str(error) + ' Спробуйте ще раз або /cancel.')
             return True
@@ -177,6 +201,8 @@ class FAQDialogs:
             self.faq_error(user_id, error)
             return True
         self.faq_edits.pop(user_id, None)
-        self.show_faq_answer(user_id, state['item']['id'] if state['action'] == 'add' else state['id'],
-                             edit=True, notice='FAQ збережено. Зміни вже доступні клієнтам.\n\n')
+        identifier = state['item']['id'] if state['action']=='add' else state['id']
+        item = self.faq_catalog.get(identifier)
+        notice = 'Чернетку FAQ збережено. Потрібне окреме затвердження.\n\n' if item.get('pending') else 'FAQ збережено. Зміни вже доступні клієнтам.\n\n'
+        self.show_faq_answer(user_id, identifier, edit=True, notice=notice)
         return True

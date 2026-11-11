@@ -80,7 +80,7 @@ def main():
         show_startup_error("Не знайдено tkinter. Установіть звичайний Python із Tcl/Tk; у Linux потрібен пакет python3-tk.")
         return 1
     except (ValueError, OSError) as error:
-        show_startup_error("Перевірте content/navigation.json, faq.json, mail_template.json і доступ до папки програми.\n" + str(error))
+        show_startup_error("Перевірте каталог content, faq.json, mail_template.json і доступ до папки програми.\n" + str(error))
         return 1
     return 0
 

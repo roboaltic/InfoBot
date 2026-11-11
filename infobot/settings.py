@@ -8,6 +8,7 @@ import tempfile
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from email.headerregistry import Address
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parent.parent
 TOKEN_PATTERN = re.compile(r"[0-9]{5,20}:[A-Za-z0-9_-]{20,200}\Z")
@@ -71,6 +72,16 @@ class Settings:
     delete_telegram_on_close: bool = True
     allowed_user_ids: list[int] = field(default_factory=list)
     mail: MailSettings = field(default_factory=MailSettings)
+    privacy_policy_url: str = ''
+
+    def validate_privacy_url(self):
+        value = self.privacy_policy_url
+        if not isinstance(value, str):
+            raise ValueError('privacy_policy_url має бути HTTPS-посиланням або порожнім рядком.')
+        parsed = urlsplit(value)
+        if value and (len(value)>1500 or parsed.scheme!='https' or not parsed.hostname or
+                      parsed.username or parsed.password or any(char.isspace() for char in value)):
+            raise ValueError('privacy_policy_url має бути HTTPS-посиланням без облікових даних.')
 
     @classmethod
     def load(cls, path: Path) -> "Settings":
@@ -93,9 +104,11 @@ class Settings:
         ):
             raise ValueError("allowed_user_ids має містити додатні Telegram ID")
         result.mail.validate()
+        result.validate_privacy_url()
         return result
 
     def save(self, path: Path) -> None:
+        self.validate_privacy_url()
         atomic_write(path, (json.dumps(asdict(self), ensure_ascii=False, indent=2) + "\n").encode())
 
 

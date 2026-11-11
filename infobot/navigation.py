@@ -113,7 +113,12 @@ class ClientNavigation:
         return {'version': 1, 'direction': direction, 'ratio': ratio,
                 'confirmed': bool(direction and ratio and raw.get('confirmed')),
                 'screen': raw.get('screen', 'home') if isinstance(raw.get('screen', 'home'), str) else 'home',
-                'revision': revision if type(revision) is int and revision >= 0 else 0}
+                'revision': revision if type(revision) is int and revision >= 0 else 0,
+                'history': [s for s in raw.get('history', []) if isinstance(s, str)][:32] if isinstance(raw.get('history'), list) else [],
+                'help_answers': {k:v for k,v in raw.get('help_answers', {}).items() if k in ('H01','H02','H03') and isinstance(v,str) and len(v)<=500} if isinstance(raw.get('help_answers'), dict) else {},
+                'faq_page': raw.get('faq_page', 0) if type(raw.get('faq_page', 0)) is int and raw.get('faq_page',0)>=0 else 0,
+                'helper_input': raw.get('helper_input') is True,
+                'updated_at': raw.get('updated_at', 0)}
 
     def nav_markup(self, uid, rows):
         state = self.nav_state(uid)
@@ -122,10 +127,10 @@ class ClientNavigation:
         return {'inline_keyboard': [[{'text': label, 'callback_data': f'n:{state["revision"]}:{route}'}
                                     for label, route in row] for row in rows]}
 
-    def nav_say(self, uid, text, rows, *, source_url='', **kwargs):
+    def nav_say(self, uid, text, rows, *, source_url='', source_label=None, **kwargs):
         markup = self.nav_markup(uid, rows)
         if source_url:
-            markup['inline_keyboard'].insert(0, [{'text': self.nav_label('source'), 'url': source_url}])
+            markup['inline_keyboard'].insert(0, [{'text': source_label or self.nav_label('source'), 'url': source_url}])
         self.say(uid, text, markup, **kwargs)
 
     def nav_label(self, name):
@@ -149,12 +154,16 @@ class ClientNavigation:
             state['ratio'].replace('_', '/') if state['ratio'] else d['texts']['no_ratio'])
 
     def client_home(self, uid, *, fresh_menu=False):
+        if self.document_content:
+            return self.document_render(uid, 'M01', fresh_menu=fresh_menu)
         self.render_nav(uid, 'home', fresh_menu=fresh_menu)
 
     def client_return(self, uid):
         self.render_nav(uid, 'grant' if self.nav_state(uid)['confirmed'] else 'home')
 
     def render_nav(self, uid, route=None, *, fresh_menu=False):
+        if self.document_content:
+            return self.document_render(uid, self.document_route(uid, route or self.nav_state(uid)['screen']), fresh_menu=fresh_menu)
         state = self.nav_state(uid)
         route = route or state['screen']
         data = self.content.data
@@ -243,6 +252,8 @@ class ClientNavigation:
         self.nav_say(uid,text,rows,source_url=source_url,fresh_menu=fresh_menu)
 
     def open_client_faq(self, uid):
+        if self.document_content:
+            return self.document_render(uid, 'Q00')
         if self.nav_state(uid)['confirmed']:
             self.render_nav(uid, 'faq:0')
         else:
@@ -260,6 +271,8 @@ class ClientNavigation:
         if len(parts)!=3 or parts[1]!=str(state['revision']):
             return
         route=parts[2]
+        if self.document_content and (route.startswith(('s:', 'doc_'))):
+            return self.document_callback(uid, route)
         action,_,value=route.partition(':')
         self.pending.pop(uid,None)
         self.faq_edits.pop(uid,None)
@@ -276,10 +289,10 @@ class ClientNavigation:
             self.form_callback(uid,action)
             return
         if action=='change_direction':
-            state.update(direction=None,ratio=None,confirmed=False)
+            state.update(direction=None,ratio=None,confirmed=False,help_answers={},helper_input=False,history=[])
             route='home'
         elif action=='direction' and value in self.content.data['directions']:
-            state.update(direction=value,ratio=None,confirmed=False)
+            state.update(direction=value,ratio=None,confirmed=False,help_answers={},helper_input=False,history=[])
             route='ratios'
         elif action=='change_ratio' and state['direction']:
             state.update(ratio=None,confirmed=False)

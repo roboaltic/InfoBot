@@ -9,6 +9,7 @@ from pathlib import Path
 
 from .engine import Engine
 from .navigation import NavigationContent
+from .screens import ScreenCatalog
 from .faq import FAQCatalog
 from .mailer import MailTemplate, MailWorker
 from .settings import InstanceLock, ROOT, Settings, TOKEN_PATTERN, load_secret
@@ -126,7 +127,8 @@ class Runner:
                 database_path = self.root / "data" / f"bot_{identity['id']}.sqlite3"
                 store = Store(database_path)
                 engine = Engine(store, self.settings, faq, self.operator_changed, mail_template, identity.get("username", ""),
-                                self.faq_catalog, NavigationContent(self.root / "content" / "navigation.json"))
+                                self.faq_catalog, NavigationContent(self.root / "content" / "navigation.json"),
+                                ScreenCatalog(self.root / 'content' / 'screens.json'))
                 delivery = Delivery(store, api, self.emit)
                 if self.settings.mail.enabled:
                     self.mail_worker = MailWorker(database_path, self.settings.mail, mail_password, self.emit)
@@ -181,7 +183,7 @@ class Runner:
             self.emit("error", str(error))
         except Exception as error:
             # Exception messages from third parties may contain request URLs or user text.
-            self.emit("error", f"Не вдалося продовжити роботу ({type(error).__name__}). Перевірте доступ до папки, content/navigation.json, faq.json та mail_template.json")
+            self.emit("error", f"Не вдалося продовжити роботу ({type(error).__name__}). Перевірте доступ до папки, каталог content, faq.json та mail_template.json")
         finally:
             if self.mail_worker:
                 self.mail_worker.stop.set()

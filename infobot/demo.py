@@ -12,6 +12,7 @@ from .settings import ROOT, Settings, MailSettings
 from .mailer import MailDelivery, MailTemplate
 from .store import Store
 from .telegram import APIError
+from .screens import ScreenCatalog
 
 
 class Demo(ttk.Frame):
@@ -26,7 +27,7 @@ class Demo(ttk.Frame):
         ttk.Label(header, text="Діалог і листи без інтернету та токена.", font=("Segoe UI", 11)).pack(side="left")
         ttk.Button(header, text="Почати знову", command=self.reset).pack(side="right")
         ttk.Button(header, text="Переглянути лист", command=self.preview_mail).pack(side="right", padx=8)
-        ttk.Label(self, text='Після запитання введіть email, телефон, ПІБ (Шевченко Олена Іванівна) та компанію ТОВ "Укрхелп". До завершення всіх кроків лист не формується.', wraplength=860).pack(fill='x', pady=(0, 8))
+        ttk.Label(self, text='Запитання → ПІБ → компанія або ФОП → телефон → email → перевірка → надсилання. Лист формується після підтвердження.', wraplength=860).pack(fill='x', pady=(0, 8))
         self.body = ttk.Frame(self)
         self.body.pack(fill="both", expand=True)
         self.reset()
@@ -40,7 +41,8 @@ class Demo(ttk.Frame):
         settings = Settings(operator_id=2, mail=MailSettings(enabled=True, host="smtp.example.test",
                             username="bot@example.test", sender="bot@example.test", recipient="support@example.test"))
         self.engine = Engine(self.store, settings, self.faq_source(),
-                             mail_template=MailTemplate.load(ROOT / "mail_template.json"), bot_username="demo_infobot")
+                             mail_template=MailTemplate.load(ROOT / "mail_template.json"), bot_username="demo_infobot",
+                             document_content=ScreenCatalog())
         self.demo_letters = []
         class LocalMailbox:
             def __init__(self, letters):
@@ -51,6 +53,7 @@ class Demo(ttk.Frame):
         self.telegram_delivery = Delivery(self.store, self, lambda *args: None)
         self.update_id = 0
         self.message_ids = {1: 0, 2: 0}
+        self.button_message_ids = {}
         self.views = {}
         self.inputs = {}
         self.buttons = {}
@@ -100,7 +103,7 @@ class Demo(ttk.Frame):
         self.update_id += 1
         self.engine.process({"update_id": self.update_id, "callback_query": {
             "id": str(self.update_id), "from": {"id": user_id}, "data": data,
-            "message": {"message_id": self.message_ids[user_id], "chat": {"id": user_id, "type": "private"}}}})
+            "message": {"message_id": self.button_message_ids.get(user_id, self.message_ids[user_id]), "chat": {"id": user_id, "type": "private"}}}})
         self.drain()
 
     def drain(self):
@@ -115,6 +118,9 @@ class Demo(ttk.Frame):
         if method == "answerCallbackQuery":
             return True
         user_id = payload["chat_id"]
+        if method == 'editMessageReplyMarkup':
+            # The simulator has one button panel: old-message cleanup must not clear the new one.
+            return True
         view = self.views[user_id]
         if method in ("deleteMessage", "deleteMessages"):
             ids = [payload["message_id"]] if method == "deleteMessage" else payload["message_ids"]
@@ -141,6 +147,7 @@ class Demo(ttk.Frame):
             message_id = self.message_ids[user_id]
             self.append(user_id, text, message_id)
         if "reply_markup" in payload:
+            self.button_message_ids[user_id] = message_id
             self.render_buttons(user_id, payload["reply_markup"])
         return {"message_id": message_id, "date": int(time.time())}
 

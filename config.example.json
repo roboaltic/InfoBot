@@ -2,6 +2,7 @@
   "operator_id": 0,
   "delete_telegram_on_close": true,
   "allowed_user_ids": [],
+  "privacy_policy_url": "",
   "mail": {
     "enabled": false,
     "host": "",

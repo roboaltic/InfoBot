@@ -19,6 +19,7 @@ from .faq import FAQCatalog, load_faq
 from .faq_dialog import FAQDialogs
 from .navigation import ClientNavigation, NavigationContent
 from .support import ClientSupport
+from .screens import DocumentNavigation
 
 
 def text_size(text: str) -> int:
@@ -29,6 +30,19 @@ def shorten(text: str, units: int = 850) -> str:
     if text_size(text) <= units:
         return text
     return text.encode('utf-16-le')[:units * 2].decode('utf-16-le', errors='ignore') + '…'
+
+
+def text_chunks(text: str, limit: int = 4000):
+    chunk, units = [], 0
+    for char in text:
+        width = 2 if ord(char)>0xFFFF else 1
+        if units + width > limit:
+            yield ''.join(chunk)
+            chunk, units = [], 0
+        chunk.append(char)
+        units += width
+    if chunk:
+        yield ''.join(chunk)
 
 
 def keyboard(rows: list[list[tuple[str, str]]]) -> dict:
@@ -57,15 +71,19 @@ class Pairing:
         return True
 
 
-class Engine(ClientSupport, ClientNavigation, FAQDialogs):
+class Engine(DocumentNavigation, ClientSupport, ClientNavigation, FAQDialogs):
     """Business logic writes to durable queues; it never sends HTTP or SMTP."""
     def __init__(self, store: Store, settings: Settings, faq: list[dict],
                  on_operator: Callable[[int], None] | None = None,
                  mail_template: MailTemplate | None = None, bot_username: str = '',
-                 faq_catalog: FAQCatalog | None = None, navigation_content: NavigationContent | None = None):
+                 faq_catalog: FAQCatalog | None = None, navigation_content: NavigationContent | None = None,
+                 document_content=None):
         self.store, self.settings = store, settings
         self.content = navigation_content or NavigationContent()
         self.faq_catalog = faq_catalog or FAQCatalog(faq)
+        self.document_content = document_content
+        if document_content:
+            self.faq_catalog.seed(document_content.faq_defaults, 'content_v01')
         self.on_operator = on_operator or (lambda user_id: None)
         self.mail_template = mail_template or MailTemplate()
         self.bot_username = '@' + bot_username if bot_username else 'InfoBot'
@@ -86,6 +104,8 @@ class Engine(ClientSupport, ClientNavigation, FAQDialogs):
     def menu(self, user_id: int):
         state = self.nav_state(user_id)
         route = 'grant' if state['confirmed'] else 'home'
+        if self.document_content:
+            route = 's:M02' if state['confirmed'] else 's:M01'
         label = self.nav_label('grant') if state['confirmed'] else 'Обрати напрям'
         rows = [[(label, f'n:{state["revision"]}:{route}')],
                 [(self.nav_label('support'), f'n:{state["revision"]}:support')]]
@@ -106,6 +126,11 @@ class Engine(ClientSupport, ClientNavigation, FAQDialogs):
 
     def say(self, user_id: int, text: str, markup: dict | None = None, ticket_id: int | None = None,
             draft_user_id: int | None = None, *, notification: bool = False, fresh_menu: bool = False):
+        if text_size(text)>4096:
+            chunks = list(text_chunks(text))
+            for chunk in chunks[:-1]:
+                self.store.enqueue('sendMessage', {'chat_id':user_id,'text':chunk}, ticket_id, draft_user_id)
+            text = chunks[-1]
         payload = {'chat_id': user_id, 'text': text}
         if fresh_menu and not notification:
             # Durable delivery metadata; removed before calling Telegram.
@@ -152,11 +177,16 @@ class Engine(ClientSupport, ClientNavigation, FAQDialogs):
                             data = 'notification_menu'
                         ack = {'callback_query_id': callback['id']}
                         saved_menu = self.store.menu_message(user_id)
-                        if (not saved_menu or saved_menu['message_id'] != message.get('message_id')) and data != 'notification_menu':
+                        stale = self.stale_menu_source(user_id, data, message.get('message_id'))
+                        outdated = data.startswith('n:') and data.split(':',2)[1]!=str(self.nav_state(user_id)['revision'])
+                        if stale:
                             ack['text'] = 'Це попереднє меню. Відкрийте актуальне: /start. Чернетку збережено.'
                         elif data.startswith('n:') and data.split(':', 2)[1] != str(self.nav_state(user_id)['revision']):
                             ack['text'] = 'Ця кнопка застаріла. Відкрийте актуальне меню: /start.'
                         self.store.enqueue('answerCallbackQuery', ack)
+                        if self.document_content and (stale or outdated):
+                            self.say(user_id, self.document_content.text('E01'),
+                                     keyboard([[('Відкрити актуальне меню','notification_menu')]]),notification=True)
                         self.callback(user_id, data, message.get('message_id'))
                     else:
                         self.message(user_id, message, command)
@@ -199,23 +229,26 @@ class Engine(ClientSupport, ClientNavigation, FAQDialogs):
 
     def callback(self, user_id: int, data: str, message_id: int | None = None):
         action, _, value = data.partition(':')
-        if message_id is not None and action in ('n', 'menu', 'faq', 'faqpage', 'support', 'help', 'privacy', 'identity', 'new',
-                                                  'continue', 'back', 'cancel_draft', 'mine', 'admin', 'commands', 'tickets',
-                                                  'faqmanage', 'faqedit', 'faqadd', 'faqfield', 'faqremove', 'faqdelete'):
-            menu = self.store.menu_message(user_id)
-            # Missing persisted identity is not proof that a static button is current.
-            if not menu or menu['message_id'] != message_id:
-                return
+        if self.stale_menu_source(user_id, data, message_id):
+            return
         if action == 'n':
             self.client_nav_callback(user_id, data, message_id)
             return
         if action == 'notification_menu':
             self.client_return(user_id)
             return
+        if action == 'notification_support':
+            self.begin_ticket(user_id)
+            return
+        if action == 'ticket_mine' and value.isdecimal():
+            ticket = self.store.ticket(int(value)) if len(value)<16 else None
+            if self._can_access(user_id, ticket):
+                self.card(user_id, ticket)
+            return
         if action == 'commands':
             self.operator_commands(user_id)
             return
-        edit_actions = ('faqmanage', 'faqedit', 'faqadd', 'faqfield', 'faqremove', 'faqdelete')
+        edit_actions = ('faqmanage', 'faqedit', 'faqadd', 'faqfield', 'faqremove', 'faqdelete', 'faqapprove')
         if action not in edit_actions:
             self.faq_edits.pop(user_id, None)
         if action in ('menu', 'faq', 'faqpage', 'support', 'help', 'admin', 'privacy', 'identity', 'mine'):
@@ -259,12 +292,16 @@ class Engine(ClientSupport, ClientNavigation, FAQDialogs):
                 self.say(user_id, 'У вас немає відкритих звернень.', self.menu(user_id))
         elif action == 'tickets' and user_id == self.settings.operator_id:
             self.list_tickets(user_id, int(value) if value.isdecimal() and len(value) < 7 else 0)
-        elif action in ('ticket', 'reply', 'confirm', 'close') and value.isdecimal() and len(value) < 16:
+        elif action in ('ticket', 'reply', 'confirm', 'close', 'accept') and value.isdecimal() and len(value) < 16:
             ticket = self.store.ticket(int(value))
             if not self._can_access(user_id, ticket):
                 self.say(user_id, 'Звернення недоступне або вже закрите.', self.menu(user_id))
                 return
-            if action == 'ticket':
+            if action == 'accept':
+                if user_id != self.settings.operator_id:
+                    return
+                self.accept_ticket(user_id, ticket)
+            elif action == 'ticket':
                 self.card(user_id, ticket)
             elif action == 'reply':
                 if user_id != self.settings.operator_id:
@@ -297,6 +334,17 @@ class Engine(ClientSupport, ClientNavigation, FAQDialogs):
                 'FAQ редагується в панелі спеціаліста. Закриття звернення доступне в його картці.')
         self.say(user_id, text, keyboard([[('Панель спеціаліста', 'admin')], [('Головне меню', 'menu')]]))
 
+    def stale_menu_source(self, user_id, data, message_id):
+        if message_id is None or data.partition(':')[0] in ('notification_menu','notification_support','ticket_mine'):
+            return False
+        static_actions = ('n','menu','faq','faqpage','support','help','privacy','identity','new','continue','back',
+                          'cancel_draft','mine','admin','commands','tickets','faqmanage','faqedit','faqadd',
+                          'faqfield','faqremove','faqdelete','faqapprove')
+        if data.partition(':')[0] not in static_actions and not self.store.was_menu_message(user_id,message_id):
+            return False
+        menu = self.store.menu_message(user_id)
+        return not menu or menu['message_id']!=message_id
+
     @staticmethod
     def contact_summary(ticket) -> str:
         if not contacts_complete(ticket):
@@ -318,11 +366,15 @@ class Engine(ClientSupport, ClientNavigation, FAQDialogs):
             confirmation = f'Повідомлення збережено у зверненні №{ticket_id} і поставлено в чергу спеціалісту. Поштову пересилку ще не ввімкнено.'
         if show_contacts:
             confirmation += '\n\n' + self.contact_summary(ticket)
+        if show_contacts and self.document_content:
+            confirmation = self.document_content.text('P08', **{'Ім’я': address_name(ticket['client_first_name']), 'номер': ticket_id})
         self.say(user_id, confirmation, self.menu(user_id), ticket_id)
         if self.settings.operator_id:
+            rows = [[('Відповісти', f'reply:{ticket_id}'), ('Картка', f'ticket:{ticket_id}')], [('Закрити', f'confirm:{ticket_id}')]]
+            if self.document_content and not ticket['accepted_by']:
+                rows.insert(0, [(self.document_content.data['ui']['accept'], f'accept:{ticket_id}')])
             self.say(self.settings.operator_id, f'Звернення №{ticket_id}\n\n' + self.contact_summary(ticket) + '\n\n' + self.context_summary(json.loads(ticket['grant_context'])) + '\n\n' + text,
-                     keyboard([[('Відповісти', f'reply:{ticket_id}'), ('Картка', f'ticket:{ticket_id}')],
-                               [('Закрити', f'confirm:{ticket_id}')]]), ticket_id, notification=True)
+                     keyboard(rows), ticket_id, notification=True)
 
     def message(self, user_id: int, message: dict, command: str):
         text = message.get('text', '').strip()
@@ -402,6 +454,8 @@ class Engine(ClientSupport, ClientNavigation, FAQDialogs):
         if not text:
             self.say(user_id, 'Поки що приймаються лише текстові повідомлення. Опишіть запитання текстом.')
             return
+        if self.document_content and self.document_message(user_id, text):
+            return
         if self.faq_admin_message(user_id, text):
             return
         if self.store.draft(user_id) and user_id != self.settings.operator_id:
@@ -480,12 +534,26 @@ class Engine(ClientSupport, ClientNavigation, FAQDialogs):
         if not text.strip() or text_size(text) > 2000:
             self.say(user_id, 'Відповідь має містити від 1 до 2000 одиниць UTF-16.')
             return False
+        if self.document_content:
+            self.accept_ticket(user_id, ticket, show_card=False)
         self.store.add_message(ticket_id, 'operator', text)
         self.store.track(ticket_id, user_id, message['message_id'], message.get('date'))
         self.say(ticket['user_id'], f'Відповідь спеціаліста · звернення №{ticket_id}\n\n{text}',
-                 keyboard([[('Моє звернення', 'mine')]]), ticket_id, notification=True)
+                 keyboard([[('Моє звернення', f'ticket_mine:{ticket_id}')]]), ticket_id, notification=True)
         self.say(user_id, f'Відповідь для звернення №{ticket_id} поставлено в чергу надсилання.', self.menu(user_id), ticket_id)
         return True
+
+    def accept_ticket(self, user_id, ticket, *, show_card=True):
+        if user_id != self.settings.operator_id:
+            return
+        cursor = self.store.db.execute('UPDATE tickets SET accepted_by=?, accepted_at=? WHERE id=? AND accepted_by=0',
+                                       (user_id, time.time(), ticket['id']))
+        if cursor.rowcount:
+            text = self.document_content.text('P09', **{'номер': ticket['id']}) if self.document_content else f"Спеціаліст прийняв звернення №{ticket['id']}."
+            self.say(ticket['user_id'], text, keyboard([[('Продовжити діалог', f"ticket_mine:{ticket['id']}")],
+                                                       [('До меню', 'notification_menu')]]), ticket['id'], notification=True)
+        if show_card:
+            self.card(user_id, self.store.ticket(ticket['id']))
 
     def card(self, user_id: int, ticket):
         details = [f"Звернення №{ticket['id']} · відкрите", self.contact_summary(ticket), self.context_summary(json.loads(ticket['grant_context']))]
@@ -499,6 +567,8 @@ class Engine(ClientSupport, ClientNavigation, FAQDialogs):
             details.append(who + ': ' + shorten(row['body']))
         rows = []
         if user_id == self.settings.operator_id:
+            if self.document_content and not ticket['accepted_by']:
+                rows.append([(self.document_content.data['ui']['accept'], f"accept:{ticket['id']}")])
             rows.append([('Відповісти', f"reply:{ticket['id']}")])
         rows.extend([[('Закрити звернення', f"confirm:{ticket['id']}")], [('До меню', 'menu')]])
         self.say(user_id, '\n\n'.join(details), keyboard(rows), ticket['id'])
@@ -533,6 +603,10 @@ class Engine(ClientSupport, ClientNavigation, FAQDialogs):
         greeting = address_name(first_name) + ', ' if first_name else ''
         text = greeting + f'дякуємо за звернення! Ваше звернення №{ticket_id} закрите. Листування видалено з робочої бази. Уже надіслані електронні листи залишаються у служби підтримки.'
         markup = keyboard([[('Головне меню', 'notification_menu')]])
+        if self.document_content:
+            text = self.document_content.text('P10', **{'Ім’я': address_name(first_name) or 'Вітаємо', 'номер': ticket_id})
+            markup = keyboard([[(self.nav_label('grant') if self.nav_state(user_id)['confirmed'] else 'Обрати напрям', 'notification_menu')],
+                               [('Нове запитання', 'notification_support')]])
         self.say(user_id, text, markup, notification=True)
         if self.settings.operator_id:
             self.say(self.settings.operator_id, f'Звернення №{ticket_id} закрите. Листування видалено з робочої бази.',

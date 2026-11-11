@@ -115,6 +115,19 @@ class Store:
                     self.db.execute(f"ALTER TABLE {table} ADD COLUMN grant_context TEXT NOT NULL DEFAULT '{{}}'")
             if 'form_version' not in {row[1] for row in self.db.execute('PRAGMA table_info(drafts)')}:
                 self.db.execute('ALTER TABLE drafts ADD COLUMN form_version INTEGER NOT NULL DEFAULT 1')
+            draft_columns = {row[1] for row in self.db.execute('PRAGMA table_info(drafts)')}
+            for name in ('editing_field', 'submission_id'):
+                if name not in draft_columns:
+                    self.db.execute(f"ALTER TABLE drafts ADD COLUMN {name} TEXT NOT NULL DEFAULT ''")
+            ticket_columns = {row[1] for row in self.db.execute('PRAGMA table_info(tickets)')}
+            for name, declaration in (('submission_id', "TEXT NOT NULL DEFAULT ''"),
+                                      ('accepted_by', 'INTEGER NOT NULL DEFAULT 0'),
+                                      ('accepted_at', 'REAL NOT NULL DEFAULT 0')):
+                if name not in ticket_columns:
+                    self.db.execute(f'ALTER TABLE tickets ADD COLUMN {name} {declaration}')
+            self.db.execute("CREATE UNIQUE INDEX IF NOT EXISTS tickets_submission ON tickets(submission_id) WHERE submission_id<>''")
+            self.db.execute('CREATE TABLE IF NOT EXISTS static_menu_history (chat_id INTEGER NOT NULL, message_id INTEGER NOT NULL, PRIMARY KEY(chat_id,message_id))')
+            self.db.execute('INSERT OR IGNORE INTO static_menu_history SELECT chat_id,message_id FROM menu_messages')
 
     def navigation(self, user_id: int) -> dict:
         row = self.db.execute('SELECT state FROM client_navigation WHERE user_id=?', (user_id,)).fetchone()
@@ -155,9 +168,9 @@ class Store:
     def user_ticket(self, user_id: int):
         return self.db.execute("SELECT * FROM tickets WHERE user_id=?", (user_id,)).fetchone()
 
-    def create_ticket(self, user_id: int, client_name: str = "", client_username: str = "") -> int:
-        cursor = self.db.execute("INSERT INTO tickets(user_id,created_at,client_name,client_username) VALUES (?,?,?,?)",
-                                 (user_id, time.time(), client_name, client_username))
+    def create_ticket(self, user_id: int, client_name: str = "", client_username: str = "", *, submission_id: str = '') -> int:
+        cursor = self.db.execute("INSERT INTO tickets(user_id,created_at,client_name,client_username,submission_id) VALUES (?,?,?,?,?)",
+                                 (user_id, time.time(), client_name, client_username, submission_id))
         return cursor.lastrowid
 
     def draft(self, user_id: int):
@@ -172,7 +185,7 @@ class Store:
 
     def update_draft(self, user_id: int, **values):
         allowed = {'step', 'client_email', 'client_phone', 'client_full_name', 'client_first_name', 'client_company',
-                   'question', 'grant_context', 'form_version'}
+                   'question', 'grant_context', 'form_version', 'editing_field', 'submission_id'}
         if not values or not set(values) <= allowed:
             raise ValueError('Недопустимі поля чернетки')
         fields = ','.join(key + '=?' for key in values)
@@ -258,6 +271,7 @@ class Store:
         return self.db.execute('SELECT * FROM menu_messages WHERE chat_id=?', (chat_id,)).fetchone()
 
     def record_menu_message(self, chat_id: int, message_id: int, created_at: float, ticket_id: int | None):
+        self.db.execute('INSERT OR IGNORE INTO static_menu_history VALUES (?,?)', (chat_id, message_id))
         self.db.execute('INSERT OR REPLACE INTO menu_messages VALUES (?,?,?)', (chat_id, message_id, created_at))
         self.db.execute('DELETE FROM telegram_refs WHERE chat_id=? AND message_id=?', (chat_id, message_id))
         if ticket_id is not None:
@@ -265,6 +279,10 @@ class Store:
 
     def forget_menu_message(self, chat_id: int, message_id: int):
         self.db.execute('DELETE FROM menu_messages WHERE chat_id=? AND message_id=?', (chat_id, message_id))
+
+    def was_menu_message(self, chat_id, message_id):
+        return self.db.execute('SELECT 1 FROM static_menu_history WHERE chat_id=? AND message_id=?',
+                               (chat_id, message_id)).fetchone() is not None
 
     def enqueue(self, method: str, payload: dict, ticket_id: int | None = None, draft_user_id: int | None = None,
                 *, is_menu: bool = False):
