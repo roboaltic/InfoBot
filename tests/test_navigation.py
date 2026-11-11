@@ -129,6 +129,45 @@ class NavigationTests(unittest.TestCase):
         self.assertEqual(self.store.menu_message(100)['message_id'], original)
         self.assertEqual(len(self.buttons()), 5)
 
+    def test_start_brings_menu_to_bottom_then_buttons_edit_new_message(self):
+        self.select()
+        old_id = self.store.menu_message(100)['message_id']
+        self.click('support')
+        self.message('Збережене запитання')
+        draft = dict(self.store.draft(100))
+        self.api.calls.clear()
+        self.message('/start')
+        new_id = self.store.menu_message(100)['message_id']
+        self.assertGreater(new_id, old_id)
+        self.assertEqual(len(self.buttons()), 5)
+        self.assertEqual(dict(self.store.draft(100)), draft)
+        self.assertEqual(self.engine.nav_state(100)['ratio'], '70_30')
+        self.assertEqual(self.api.messages[(100, old_id)]['reply_markup']['inline_keyboard'], [])
+        self.assertTrue(any(method == 'deleteMessage' for method, _ in self.api.calls))
+        self.assertFalse(any('_fresh_menu' in payload for _, payload in self.api.calls))
+        self.click('direction:restore')
+        self.assertEqual(self.store.menu_message(100)['message_id'], new_id)
+
+    def test_start_replacement_survives_failed_send_and_restart(self):
+        self.select()
+        old_id = self.store.menu_message(100)['message_id']
+        self.api.fail_send = True
+        self.message('/start')
+        self.assertEqual(self.store.menu_message(100)['message_id'], old_id)
+        self.store.close()
+        self.store = Store(self.path)
+        self.engine = Engine(self.store, self.settings, [], faq_catalog=self.catalog)
+        self.delivery = Delivery(self.store, self.api, lambda *args: None)
+        self.api.fail_send = False
+        with self.store.db:
+            self.store.db.execute('UPDATE outbox SET next_attempt=0')
+        self.drain()
+        self.assertGreater(self.store.menu_message(100)['message_id'], old_id)
+        self.assertEqual(len(self.buttons()), 5)
+        self.assertFalse(any('_fresh_menu' in payload for _, payload in self.api.calls))
+        self.click('direction:create')
+        self.assertEqual(self.engine.nav_state(100)['direction'], 'create')
+
     def test_all_nine_combinations_and_all_eleven_subsections(self):
         data = self.engine.content.data
         for direction in data['directions']:

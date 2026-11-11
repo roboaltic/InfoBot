@@ -105,8 +105,11 @@ class Engine(ClientSupport, ClientNavigation, FAQDialogs):
                            [('Команди спеціаліста', 'commands')], [('Головне меню', 'menu')]]))
 
     def say(self, user_id: int, text: str, markup: dict | None = None, ticket_id: int | None = None,
-            draft_user_id: int | None = None, *, notification: bool = False):
+            draft_user_id: int | None = None, *, notification: bool = False, fresh_menu: bool = False):
         payload = {'chat_id': user_id, 'text': text}
+        if fresh_menu and not notification:
+            # Durable delivery metadata; removed before calling Telegram.
+            payload['_fresh_menu'] = True
         if markup is None and not notification:
             markup = keyboard([[('Головне меню', 'menu')]])
         if markup is not None:
@@ -342,7 +345,7 @@ class Engine(ClientSupport, ClientNavigation, FAQDialogs):
         if command in ('/start', '/menu'):
             self.pending.pop(user_id, None)
             self.faq_edits.pop(user_id, None)
-            self.client_home(user_id)
+            self.client_home(user_id, fresh_menu=True)
             return
         if command in ('/help', '/support'):
             self.support(user_id)

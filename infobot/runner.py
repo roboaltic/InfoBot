@@ -21,10 +21,10 @@ class Delivery:
         self.store, self.api, self.emit = store, api, emit
         self.sent_at: OrderedDict[int, float] = OrderedDict()
 
-    def render_menu(self, payload: dict):
+    def render_menu(self, payload: dict, *, fresh_menu=False):
         chat_id = payload["chat_id"]
         menu = self.store.menu_message(chat_id)
-        if menu:
+        if menu and not fresh_menu:
             message_id = menu["message_id"]
             try:
                 self.api.call("editMessageText", {**payload, "message_id": message_id})
@@ -43,9 +43,10 @@ class Delivery:
             if time.monotonic() - self.sent_at.get(destination, -100) < 1.1:
                 continue
             payload = json.loads(job["payload"])
+            fresh_menu = payload.pop('_fresh_menu', False)
             old_menu = self.store.menu_message(destination) if job["is_menu"] else None
             try:
-                result = self.render_menu(payload) if job["is_menu"] else self.api.call(job["method"], payload)
+                result = self.render_menu(payload, fresh_menu=fresh_menu) if job["is_menu"] else self.api.call(job["method"], payload)
             except APIError as error:
                 if error.code in (401, 409):
                     raise

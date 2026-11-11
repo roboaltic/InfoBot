@@ -148,13 +148,13 @@ class ClientNavigation:
         return d['directions'].get(state['direction'], d['texts']['no_direction']) + ' · ' + (
             state['ratio'].replace('_', '/') if state['ratio'] else d['texts']['no_ratio'])
 
-    def client_home(self, uid):
-        self.render_nav(uid, 'home')
+    def client_home(self, uid, *, fresh_menu=False):
+        self.render_nav(uid, 'home', fresh_menu=fresh_menu)
 
     def client_return(self, uid):
         self.render_nav(uid, 'grant' if self.nav_state(uid)['confirmed'] else 'home')
 
-    def render_nav(self, uid, route=None):
+    def render_nav(self, uid, route=None, *, fresh_menu=False):
         state = self.nav_state(uid)
         route = route or state['screen']
         data = self.content.data
@@ -240,7 +240,7 @@ class ClientNavigation:
                 rows = self.nav_links(uid,f'faq:{page}')
         else:
             return self.render_nav(uid,'home')
-        self.nav_say(uid,text,rows,source_url=source_url)
+        self.nav_say(uid,text,rows,source_url=source_url,fresh_menu=fresh_menu)
 
     def open_client_faq(self, uid):
         if self.nav_state(uid)['confirmed']:
