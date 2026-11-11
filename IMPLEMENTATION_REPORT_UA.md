@@ -1,4 +1,4 @@
-> Архівний звіт попереднього етапу. Поточний результат за документом 0.1 — [docs/IMPLEMENTATION_V01_UA.md](docs/IMPLEMENTATION_V01_UA.md).
+> Архівний звіт попереднього етапу. Поточний результат за документом 0.2 — [docs/IMPLEMENTATION_V02_UA.md](docs/IMPLEMENTATION_V02_UA.md).
 
 # Результат перевірки й продовження роботи
 

@@ -1,3 +1,5 @@
+> Архівний звіт етапу 0.1. Поточний результат — [IMPLEMENTATION_V02_UA.md](IMPLEMENTATION_V02_UA.md); пріоритетні вимоги — [content_revision_0_2.md](content_revision_0_2.md).
+
 # Реалізація InfoBot за технічним документом 0.1
 
 ## Дослідження
