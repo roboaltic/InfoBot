@@ -19,7 +19,7 @@ class FAQEditor(ttk.Frame):
         self.source = tk.StringVar()
         self.status = tk.StringVar()
         ttk.Label(self, text='FAQ для клієнтів', font=('Segoe UI', 15, 'bold')).pack(anchor='w')
-        ttk.Label(self, text='Зміни одразу з’являються в Telegram. Диспетчер також може редагувати FAQ у чаті бота.',
+        ttk.Label(self, text='Зміни одразу з’являються в Telegram. Спеціаліст також може редагувати FAQ у чаті бота.',
                   wraplength=850).pack(anchor='w', pady=(6, 12))
         body = ttk.Frame(self)
         body.pack(fill='both', expand=True)

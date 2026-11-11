@@ -14,9 +14,11 @@ from typing import Callable
 from .mailer import MailTemplate
 from .settings import Settings
 from .store import Store
-from .contacts import STEPS, PROMPTS, address_name, complete as contacts_complete, validate_step
+from .contacts import address_name, complete as contacts_complete
 from .faq import FAQCatalog, load_faq
 from .faq_dialog import FAQDialogs
+from .navigation import ClientNavigation, NavigationContent
+from .support import ClientSupport
 
 
 def text_size(text: str) -> int:
@@ -55,13 +57,14 @@ class Pairing:
         return True
 
 
-class Engine(FAQDialogs):
+class Engine(ClientSupport, ClientNavigation, FAQDialogs):
     """Business logic writes to durable queues; it never sends HTTP or SMTP."""
     def __init__(self, store: Store, settings: Settings, faq: list[dict],
                  on_operator: Callable[[int], None] | None = None,
                  mail_template: MailTemplate | None = None, bot_username: str = '',
-                 faq_catalog: FAQCatalog | None = None):
+                 faq_catalog: FAQCatalog | None = None, navigation_content: NavigationContent | None = None):
         self.store, self.settings = store, settings
+        self.content = navigation_content or NavigationContent()
         self.faq_catalog = faq_catalog or FAQCatalog(faq)
         self.on_operator = on_operator or (lambda user_id: None)
         self.mail_template = mail_template or MailTemplate()
@@ -81,32 +84,25 @@ class Engine(FAQDialogs):
             self.pending.popitem(last=False)
 
     def menu(self, user_id: int):
-        rows = [[('Поширені запитання', 'faq')], [('Підтримка', 'support')],
-                [('Запитання диспетчеру', 'new')]]
+        state = self.nav_state(user_id)
+        route = 'grant' if state['confirmed'] else 'home'
+        label = self.nav_label('grant') if state['confirmed'] else 'Обрати напрям'
+        rows = [[(label, f'n:{state["revision"]}:{route}')],
+                [(self.nav_label('support'), f'n:{state["revision"]}:support')]]
+        if self.store.draft(user_id):
+            rows.append([('Продовжити звернення', 'continue')])
         if user_id == self.settings.operator_id:
-            rows.append([('Панель диспетчера', 'admin')])
+            rows.append([('Панель спеціаліста', 'admin')])
         return keyboard(rows)
-
-    def support(self, user_id: int):
-        rows = [[('Моє звернення', 'mine')]]
-        draft = self.store.draft(user_id)
-        if draft:
-            rows.insert(0, [('Продовжити анкету', 'continue')])
-            if draft['step'] != 'email':
-                rows.append([('Попередній крок', 'back')])
-            rows.append([('Скасувати чернетку', 'cancel_draft')])
-        rows.extend([[('Про мої дані', 'privacy'), ('Мій Telegram ID', 'identity')],
-                     [('Головне меню', 'menu')]])
-        self.say(user_id, 'Підтримка\n\nОберіть потрібну дію.', keyboard(rows))
 
     def admin(self, user_id: int, notice: str = ''):
         if user_id != self.settings.operator_id:
-            self.say(user_id, 'Панель доступна лише диспетчеру.', self.menu(user_id))
+            self.say(user_id, 'Панель доступна лише спеціалісту.', self.menu(user_id))
             return
-        self.say(user_id, notice + 'Панель диспетчера\n\nОберіть звернення для відповіді або змініть каталог FAQ. '
+        self.say(user_id, notice + 'Панель спеціаліста\n\nОберіть звернення для відповіді або змініть каталог FAQ. '
                  'Налаштування пошти, доступу та резервні копії — у програмі на комп’ютері.',
                  keyboard([[('Відкриті звернення', 'tickets:0')], [('Редагувати FAQ', 'faqmanage')],
-                           [('Команди диспетчера', 'commands')], [('Головне меню', 'menu')]]))
+                           [('Команди спеціаліста', 'commands')], [('Головне меню', 'menu')]]))
 
     def say(self, user_id: int, text: str, markup: dict | None = None, ticket_id: int | None = None,
             draft_user_id: int | None = None, *, notification: bool = False):
@@ -141,7 +137,6 @@ class Engine(FAQDialogs):
                       or user_id == self.settings.operator_id):
                     self.store.record_connection(user_id, actor)
                     if callback:
-                        self.store.enqueue('answerCallbackQuery', {'callback_query_id': callback['id']})
                         data = callback.get('data', '')
                         # Older closure notifications used the static menu callback.
                         if (data == 'menu'
@@ -152,6 +147,13 @@ class Engine(FAQDialogs):
                                     r'(?: Уже надіслані електронні листи залишаються у служби підтримки\.)?',
                                     message.get('text', ''))):
                             data = 'notification_menu'
+                        ack = {'callback_query_id': callback['id']}
+                        saved_menu = self.store.menu_message(user_id)
+                        if (not saved_menu or saved_menu['message_id'] != message.get('message_id')) and data != 'notification_menu':
+                            ack['text'] = 'Це попереднє меню. Відкрийте актуальне: /start. Чернетку збережено.'
+                        elif data.startswith('n:') and data.split(':', 2)[1] != str(self.nav_state(user_id)['revision']):
+                            ack['text'] = 'Ця кнопка застаріла. Відкрийте актуальне меню: /start.'
+                        self.store.enqueue('answerCallbackQuery', ack)
                         self.callback(user_id, data, message.get('message_id'))
                     else:
                         self.message(user_id, message, command)
@@ -188,21 +190,25 @@ class Engine(FAQDialogs):
                 self.store.db.execute("DELETE FROM outbox WHERE destination=? AND method='sendMessage'", (previous_operator,))
             self.pending.clear()
             self.faq_edits.clear()
-            self.say(user_id, 'Вас підключено як диспетчера. Звернення та відповіді доступні в цьому чаті.', self.menu(user_id))
+            self.say(user_id, 'Вас підключено як спеціаліста. Звернення та відповіді доступні в цьому чаті.', self.menu(user_id))
         else:
             self.say(user_id, 'Код недійсний. Отримайте новий код у вікні програми на комп’ютері.')
 
     def callback(self, user_id: int, data: str, message_id: int | None = None):
         action, _, value = data.partition(':')
-        if message_id is not None and action in ('menu', 'faq', 'faqpage', 'support', 'help', 'privacy', 'identity', 'new',
+        if message_id is not None and action in ('n', 'menu', 'faq', 'faqpage', 'support', 'help', 'privacy', 'identity', 'new',
                                                   'continue', 'back', 'cancel_draft', 'mine', 'admin', 'commands', 'tickets',
                                                   'faqmanage', 'faqedit', 'faqadd', 'faqfield', 'faqremove', 'faqdelete'):
             menu = self.store.menu_message(user_id)
             # Missing persisted identity is not proof that a static button is current.
             if not menu or menu['message_id'] != message_id:
                 return
+        if action == 'n':
+            self.client_nav_callback(user_id, data, message_id)
+            return
         if action == 'notification_menu':
-            action = 'menu'
+            self.client_return(user_id)
+            return
         if action == 'commands':
             self.operator_commands(user_id)
             return
@@ -214,13 +220,13 @@ class Engine(FAQDialogs):
         if action == 'menu':
             self.pending.pop(user_id, None)
             self.faq_edits.pop(user_id, None)
-            self.say(user_id, 'Оберіть дію:', self.menu(user_id))
+            self.client_return(user_id)
         elif action == 'faq' and not value:
-            self.show_faq(user_id)
+            self.open_client_faq(user_id)
         elif action == 'faq':
-            self.show_faq_answer(user_id, value)
+            self.render_nav(user_id, 'faqanswer:' + value) if self.nav_state(user_id)['confirmed'] else self.show_faq_answer(user_id, value)
         elif action == 'faqpage':
-            self.show_faq(user_id, value)
+            self.render_nav(user_id, 'faq:' + value) if self.nav_state(user_id)['confirmed'] else self.show_faq(user_id, value)
         elif action in edit_actions:
             self.faq_admin_callback(user_id, data)
         elif action == 'admin':
@@ -259,7 +265,7 @@ class Engine(FAQDialogs):
                 self.card(user_id, ticket)
             elif action == 'reply':
                 if user_id != self.settings.operator_id:
-                    self.say(user_id, 'Ця дія доступна диспетчеру.')
+                    self.say(user_id, 'Ця дія доступна спеціалісту.')
                     return
                 self.faq_edits.pop(user_id, None)
                 self._pending(user_id, 'reply', ticket['id'])
@@ -275,96 +281,24 @@ class Engine(FAQDialogs):
 
     def operator_commands(self, user_id: int):
         if user_id != self.settings.operator_id:
-            self.say(user_id, 'Список команд доступний лише диспетчеру. Дії для клієнтів є в меню та розділі «Підтримка».',
+            self.say(user_id, 'Список команд доступний лише спеціалісту. Дії для клієнтів є в меню та розділі «Підтримка».',
                      self.menu(user_id))
             return
         self.pending.pop(user_id, None)
         self.faq_edits.pop(user_id, None)
         text = ('Команди бота\n\n/start — головне меню\n/faq — поширені запитання\n/support або /help — розділ підтримки\n'
-                '/ask — запитання диспетчеру\n/mine — ваше звернення\n/continue — продовжити анкету\n/privacy — про дані\n'
+                '/ask — запитання спеціалісту\n/mine — ваше звернення\n/continue — продовжити анкету\n/privacy — про дані\n'
                 '/back — попередній крок анкети\n/cancel — скасувати введення та видалити чернетку\n/id — ваш Telegram ID\n'
                 '/delete_me — закрити своє звернення й видалити його з робочої бази.\n\n'
-                'Дії диспетчера\n/admin — панель\n/tickets — відкриті звернення\n/reply НОМЕР текст — відповідь клієнту\n\n'
-                'FAQ редагується в панелі диспетчера. Закриття звернення доступне в його картці.')
-        self.say(user_id, text, keyboard([[('Панель диспетчера', 'admin')], [('Головне меню', 'menu')]]))
-
-    def begin_ticket(self, user_id: int):
-        if user_id == self.settings.operator_id:
-            self.say(user_id, 'Для перевірки ролі клієнта скористайтеся деморежимом або другим Telegram-акаунтом.', self.menu(user_id))
-        elif self.store.draft(user_id):
-            self.prompt_draft(user_id)
-        elif not self.settings.operator_id and not self.settings.mail.enabled:
-            self.say(user_id, 'Службу підтримки ще не підключено. Типові відповіді доступні в меню.', self.menu(user_id))
-        elif self.store.user_ticket(user_id):
-            self.say(user_id, 'Ваше звернення вже відкрите. Наступне текстове повідомлення буде додано до нього.', self.menu(user_id))
-        else:
-            self._pending(user_id, 'new')
-            channels = 'Після заповнення дані будуть передані на електронну пошту служби підтримки.' if self.settings.mail.enabled else 'Після заповнення дані отримає диспетчер.'
-            self.say(user_id, 'Опишіть запитання одним текстовим повідомленням, до 2000 одиниць UTF-16. Потім обов’язково вкажіть email, телефон, ПІБ і компанію. ' + channels,
-                     keyboard([[('Скасувати', 'menu')]]))
-
-    def prompt_draft(self, user_id: int, prefix: str = ''):
-        draft = self.store.draft(user_id)
-        if not draft:
-            return
-        rows = [[('Назад', 'back')]] if draft['step'] != 'email' else []
-        rows.append([('Скасувати чернетку', 'cancel_draft')])
-        text = (prefix + '\n\n' if prefix else '') + PROMPTS[draft['step']]
-        self.say(user_id, text, keyboard(rows), draft_user_id=user_id)
-
-    def back_draft(self, user_id: int):
-        draft = self.store.draft(user_id)
-        if not draft:
-            self.say(user_id, 'Немає незавершеної анкети.', self.menu(user_id))
-            return
-        index = STEPS.index(draft['step'])
-        if index:
-            self.store.update_draft(user_id, step=STEPS[index - 1])
-        self.prompt_draft(user_id)
-
-    def cancel_draft(self, user_id: int):
-        self.store.cancel_draft(user_id, self.settings.delete_telegram_on_close)
-        self.pending.pop(user_id, None)
-        self.say(user_id, 'Введення скасовано. Чернетку видалено з робочої бази.', self.menu(user_id))
-
-    def advance_draft(self, user_id: int, text: str, message: dict):
-        draft = self.store.draft(user_id)
-        self.store.track_draft(user_id, message['message_id'], message.get('date', time.time()))
-        try:
-            values = validate_step(draft['step'], text)
-        except ValueError as error:
-            self.prompt_draft(user_id, str(error))
-            return
-        self.store.update_draft(user_id, **values)
-        index = STEPS.index(draft['step'])
-        if index + 1 < len(STEPS):
-            self.store.update_draft(user_id, step=STEPS[index + 1])
-            self.prompt_draft(user_id)
-        else:
-            self.submit_draft(user_id)
-
-    def submit_draft(self, user_id: int):
-        draft = self.store.draft(user_id)
-        if not contacts_complete(draft):
-            self.prompt_draft(user_id, 'Заповніть усі обов’язкові поля.')
-            return
-        if not self.settings.operator_id and not self.settings.mail.enabled:
-            self.prompt_draft(user_id, 'Підтримка тимчасово не підключена. Дані збережено; спробуйте завершити пізніше.')
-            return
-        ticket_id = draft['ticket_id']
-        if not ticket_id:
-            ticket_id = self.store.create_ticket(user_id, draft['telegram_name'], draft['telegram_username'])
-        self.store.set_contacts(ticket_id, draft)
-        references = json.loads(draft['message_refs'])
-        question = draft['question']
-        self.store.delete_draft(user_id)
-        self.accept_question(user_id, ticket_id, question, references, show_contacts=True)
+                'Дії спеціаліста\n/admin — панель\n/tickets — відкриті звернення\n/reply НОМЕР текст — відповідь клієнту\n\n'
+                'FAQ редагується в панелі спеціаліста. Закриття звернення доступне в його картці.')
+        self.say(user_id, text, keyboard([[('Панель спеціаліста', 'admin')], [('Головне меню', 'menu')]]))
 
     @staticmethod
     def contact_summary(ticket) -> str:
         if not contacts_complete(ticket):
             return 'Контактні дані ще не заповнено.'
-        return (f"ПІБ: {ticket['client_full_name']}\nКомпанія: {ticket['client_company']}\n"
+        return (f"ПІБ: {ticket['client_full_name']}\nКомпанія або ФОП: {ticket['client_company']}\n"
                 f"Email: {ticket['client_email']}\nТелефон: {ticket['client_phone']}")
 
     def accept_question(self, user_id: int, ticket_id: int, text: str, references: list[dict], show_contacts: bool = False):
@@ -378,12 +312,12 @@ class Engine(FAQDialogs):
             self.queue_mail(ticket_id, row_id, text)
             confirmation = f'Ваше повідомлення прийнято у зверненні №{ticket_id}. Лист службі підтримки поставлено в чергу надсилання.'
         else:
-            confirmation = f'Повідомлення збережено у зверненні №{ticket_id} і поставлено в чергу диспетчеру. Поштову пересилку ще не ввімкнено.'
+            confirmation = f'Повідомлення збережено у зверненні №{ticket_id} і поставлено в чергу спеціалісту. Поштову пересилку ще не ввімкнено.'
         if show_contacts:
             confirmation += '\n\n' + self.contact_summary(ticket)
         self.say(user_id, confirmation, self.menu(user_id), ticket_id)
         if self.settings.operator_id:
-            self.say(self.settings.operator_id, f'Звернення №{ticket_id}\n\n' + self.contact_summary(ticket) + '\n\n' + text,
+            self.say(self.settings.operator_id, f'Звернення №{ticket_id}\n\n' + self.contact_summary(ticket) + '\n\n' + self.context_summary(json.loads(ticket['grant_context'])) + '\n\n' + text,
                      keyboard([[('Відповісти', f'reply:{ticket_id}'), ('Картка', f'ticket:{ticket_id}')],
                                [('Закрити', f'confirm:{ticket_id}')]]), ticket_id, notification=True)
 
@@ -408,14 +342,13 @@ class Engine(FAQDialogs):
         if command in ('/start', '/menu'):
             self.pending.pop(user_id, None)
             self.faq_edits.pop(user_id, None)
-            self.say(user_id, 'Вітаємо! Я — інформаційний бот про гранти на обладнання для переробних підприємств у межах програми «Зроблено в Україні». '
-                     'Допоможу дізнатися про умови участі, фінансування, подання заявки та використання коштів.\n\nОберіть розділ:', self.menu(user_id))
+            self.client_home(user_id)
             return
         if command in ('/help', '/support'):
             self.support(user_id)
             return
         if command == '/faq':
-            self.show_faq(user_id)
+            self.open_client_faq(user_id)
             return
         if command == '/admin':
             self.admin(user_id)
@@ -426,7 +359,7 @@ class Engine(FAQDialogs):
         if command == '/privacy':
             self.say(user_id, 'Бот зберігає запитання, Telegram ID, дані профілю та обов’язкові контакти: email, телефон, ПІБ і компанію. Чернетка зберігається на комп’ютері власника до завершення або скасування. '
                      'Для оновлення меню зберігається ідентифікатор його повідомлення. '
-                     'Після заповнення всіх полів ці дані передаються диспетчеру та, якщо пересилку ввімкнено, на пошту підтримки. '
+                     'Після заповнення всіх полів ці дані передаються спеціалісту та, якщо пересилку ввімкнено, на пошту підтримки. '
                      'Після закриття листування видаляється з робочої бази; надіслані електронні листи та ручні резервні копії залишаються. '
                      'Видалення повідомлень у Telegram виконується за можливості; видалити весь діалог бот не може. '
                      'Паролі та коди входу не надсилайте.', self.menu(user_id))
@@ -483,11 +416,11 @@ class Engine(FAQDialogs):
                 if self.reply(user_id, pending[1], text, message):
                     self.pending.pop(user_id, None)
             else:
-                self.say(user_id, 'Оберіть дію в панелі диспетчера. Для відповіді відкрийте звернення та натисніть «Відповісти».', self.menu(user_id))
+                self.say(user_id, 'Оберіть дію в панелі спеціаліста. Для відповіді відкрийте звернення та натисніть «Відповісти».', self.menu(user_id))
             return
         ticket = self.store.user_ticket(user_id)
         if not ticket and not (pending and pending[0] == 'new'):
-            self.say(user_id, 'Щоб надіслати звернення, натисніть «Запитання диспетчеру».', self.menu(user_id))
+            self.say(user_id, 'Щоб надіслати звернення, натисніть «Звернутися до підтримки».', self.menu(user_id))
             return
         if not self.settings.operator_id and not self.settings.mail.enabled:
             self.say(user_id, 'Служба підтримки поки що недоступна.', self.menu(user_id))
@@ -499,8 +432,10 @@ class Engine(FAQDialogs):
         if not ticket or not contacts_complete(ticket):
             self.store.create_draft(user_id, text, name, username, message['message_id'], message.get('date', time.time()),
                                     ticket['id'] if ticket else None)
+            previous_contacts = {key: ticket[key] for key in ('client_email', 'client_phone', 'client_full_name', 'client_first_name', 'client_company')} if ticket else {}
+            self.store.update_draft(user_id, step='full_name', form_version=2, **previous_contacts)
             self.pending.pop(user_id, None)
-            self.prompt_draft(user_id, 'Запитання збережено як чернетку. Для реєстрації звернення обов’язково заповніть усі 4 поля. До завершення анкети запитання не передається підтримці.')
+            self.prompt_draft(user_id, 'Запитання збережено як чернетку. Для реєстрації звернення заповніть контакти та підтвердьте надсилання. До підтвердження запитання не передається підтримці.')
         else:
             self.accept_question(user_id, ticket['id'], text, [{'id': message['message_id'], 'date': message.get('date', time.time())}])
 
@@ -523,6 +458,7 @@ class Engine(FAQDialogs):
             'client_company': ticket['client_company'],
         }
         payload = self.mail_template.render(fields)
+        payload['body'] += '\n\n' + self.context_summary(json.loads(ticket['grant_context']))
         domain = self.settings.mail.sender.rpartition('@')[2] or 'infobot.local'
         message_id = '<infobot-' + uuid.uuid4().hex + '@' + domain + '>'
         root_id = ticket['mail_thread_id']
@@ -543,20 +479,20 @@ class Engine(FAQDialogs):
             return False
         self.store.add_message(ticket_id, 'operator', text)
         self.store.track(ticket_id, user_id, message['message_id'], message.get('date'))
-        self.say(ticket['user_id'], f'Відповідь диспетчера · звернення №{ticket_id}\n\n{text}',
+        self.say(ticket['user_id'], f'Відповідь спеціаліста · звернення №{ticket_id}\n\n{text}',
                  keyboard([[('Моє звернення', 'mine')]]), ticket_id, notification=True)
         self.say(user_id, f'Відповідь для звернення №{ticket_id} поставлено в чергу надсилання.', self.menu(user_id), ticket_id)
         return True
 
     def card(self, user_id: int, ticket):
-        details = [f"Звернення №{ticket['id']} · відкрите", self.contact_summary(ticket)]
+        details = [f"Звернення №{ticket['id']} · відкрите", self.contact_summary(ticket), self.context_summary(json.loads(ticket['grant_context']))]
         pending, sent, blocked = self.store.mail_counts(ticket['id'])
         if pending or sent or blocked:
             details.append(f'Електронна пошта: у черзі — {pending}; передано SMTP — {sent}; потребують перевірки — {blocked}.')
         elif not self.settings.mail.enabled:
             details.append('Поштову пересилку не ввімкнено.')
         for row in self.store.history(ticket['id']):
-            who = 'Клієнт' if row['direction'] == 'client' else 'Диспетчер'
+            who = 'Клієнт' if row['direction'] == 'client' else 'Спеціаліст'
             details.append(who + ': ' + shorten(row['body']))
         rows = []
         if user_id == self.settings.operator_id:

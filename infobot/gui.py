@@ -76,7 +76,7 @@ class App:
         self.status = tk.StringVar(value='Зупинено')
         self.counts = tk.StringVar(value='Відкритих звернень: —  |  У черзі Telegram: —')
         self.mail_counts = tk.StringVar(value='Листи: у черзі —; передано SMTP —; потребують перевірки —')
-        self.operator = tk.StringVar(value=f"Диспетчер: {self.settings.operator_id or 'не підключений'}")
+        self.operator = tk.StringVar(value=f"Спеціаліст: {self.settings.operator_id or 'не підключений'}")
         self.claim = tk.StringVar()
         ttk.Label(launch, text='Токен BotFather (вводиться лише на цьому комп’ютері):').pack(anchor='w')
         self.token_entry = ttk.Entry(launch, textvariable=self.token, font=('Consolas', 11))
@@ -100,7 +100,7 @@ class App:
         ttk.Label(launch, textvariable=self.status, style='Status.TLabel', wraplength=860).pack(anchor='w', pady=(14, 4))
         ttk.Label(launch, textvariable=self.counts).pack(anchor='w')
         ttk.Label(launch, textvariable=self.mail_counts).pack(anchor='w', pady=(4, 0))
-        pairing = ttk.LabelFrame(launch, text='Диспетчер', padding=10)
+        pairing = ttk.LabelFrame(launch, text='Спеціаліст', padding=10)
         pairing.pack(fill='x', pady=14)
         ttk.Label(pairing, textvariable=self.operator).pack(anchor='w')
         row = ttk.Frame(pairing)
@@ -288,11 +288,11 @@ class App:
                 self.retry_button.configure(state='normal' if self.settings.mail.enabled else 'disabled')
             elif kind == 'pairing':
                 self.claim.set('/claim ' + value)
-                self.log('Код підключення диспетчера оновлено. Команду показано в окремому полі.')
+                self.log('Код підключення спеціаліста оновлено. Команду показано в окремому полі.')
             elif kind == 'operator':
-                self.operator.set(f'Диспетчер: {value}')
+                self.operator.set(f'Спеціаліст: {value}')
                 self.claim.set('')
-                self.log('Диспетчера підключено.')
+                self.log('Спеціаліста підключено.')
             elif kind == 'connections':
                 self.show_connections(value)
             elif kind == 'counts':

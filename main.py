@@ -55,9 +55,9 @@ def main():
         failed = []
         def emit(kind, value):
             if kind == "pairing":
-                print("Одноразова команда підключення диспетчера (10 хвилин): /claim " + value, flush=True)
+                print("Одноразова команда підключення спеціаліста (10 хвилин): /claim " + value, flush=True)
             elif kind in ("log", "error", "running", "operator"):
-                label = {"log": "Журнал", "error": "Помилка", "running": "Працює", "operator": "Диспетчер"}[kind]
+                label = {"log": "Журнал", "error": "Помилка", "running": "Працює", "operator": "Спеціаліст"}[kind]
                 print(f"[{label}] {value}", flush=True)
             if kind == "error":
                 failed.append(True)
@@ -80,7 +80,7 @@ def main():
         show_startup_error("Не знайдено tkinter. Установіть звичайний Python із Tcl/Tk; у Linux потрібен пакет python3-tk.")
         return 1
     except (ValueError, OSError) as error:
-        show_startup_error("Перевірте faq.json, mail_template.json і доступ до папки програми.\n" + str(error))
+        show_startup_error("Перевірте content/navigation.json, faq.json, mail_template.json і доступ до папки програми.\n" + str(error))
         return 1
     return 0
 

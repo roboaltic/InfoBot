@@ -67,8 +67,13 @@ class MailFlowTests(unittest.TestCase):
 
     def finish_contacts(self):
         update = None
-        for text in ('olena@example.test', '+380671234567', 'Шевченко Олена Іванівна', 'ТОВ "Укрхелп"'):
+        for text in ('Шевченко Олена Іванівна', 'ТОВ "Укрхелп"', '+380671234567', 'olena@example.test'):
             update = self.message(text)
+        self.sequence += 1
+        update = {'update_id': self.sequence, 'callback_query': {'id': str(self.sequence),
+            'from': {'id': 100}, 'data': f'n:{self.engine.nav_state(100)["revision"]}:form_send',
+            'message': {'chat': {'id': 100, 'type': 'private'}}}}
+        self.engine.process(update)
         return update
 
     def queued(self):
@@ -137,16 +142,19 @@ class MailFlowTests(unittest.TestCase):
 
     def test_mail_enqueue_failure_rolls_back_question_and_offset(self):
         self.message('/ask')
-        self.message('Має зберегтися після повтору')
-        for text in ('olena@example.test', '+380671234567', 'Шевченко Олена Іванівна'):
-            self.message(text)
+        self.message('Питання')
+        for value in ('Шевченко Олена Іванівна', 'ФОП Шевченко', '0671234567', 'olena@example.test'):
+            self.message(value)
         previous_offset = self.store.offset
-        with patch.object(self.store, 'enqueue_mail', side_effect=sqlite3.OperationalError('full')):
+        with patch.object(self.store, 'enqueue_mail', side_effect=sqlite3.OperationalError('test full')):
             with self.assertRaises(sqlite3.OperationalError):
-                self.message('ТОВ "Укрхелп"')
+                self.engine.process({'update_id': self.sequence + 1, 'callback_query': {
+                    'id': 'send', 'from': {'id': 100},
+                    'data': f'n:{self.engine.nav_state(100)["revision"]}:form_send',
+                    'message': {'chat': {'id': 100, 'type': 'private'}}}})
         self.assertEqual(self.store.offset, previous_offset)
         self.assertEqual(self.store.counts()[0], 0)
-        self.assertEqual(self.store.draft(100)['step'], 'company')
+        self.assertEqual(self.store.draft(100)['step'], 'review')
 
     def test_client_gets_queued_notice_before_smtp_acceptance(self):
         self.create()
@@ -206,7 +214,7 @@ class MailFlowTests(unittest.TestCase):
 
     def test_operator_replies_do_not_create_client_question_emails(self):
         ticket_id, update = self.create()
-        self.message(f'/reply {ticket_id} Відповідь від диспетчера', uid=900)
+        self.message(f'/reply {ticket_id} Відповідь від спеціаліста', uid=900)
         self.assertEqual(len(self.queued()), 1)
 
     def test_cards_show_mail_status_and_deny_other_users(self):

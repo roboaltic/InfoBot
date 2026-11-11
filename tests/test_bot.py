@@ -76,8 +76,9 @@ class FlowTests(unittest.TestCase):
         return self.store.user_ticket(uid)["id"]
 
     def finish_contacts(self, uid=100):
-        for text in (f'client{uid}@example.test', '+380671234567', 'Шевченко Олена Іванівна', 'ТОВ "Укрхелп"'):
+        for text in ('Шевченко Олена Іванівна', 'ТОВ "Укрхелп"', '+380671234567', f'client{uid}@example.test'):
             self.message(uid, text)
+        self.click(uid, f'n:{self.engine.nav_state(uid)["revision"]}:form_send')
 
     def drain(self, api=None):
         api = api if api is not None else FakeAPI()
@@ -96,10 +97,10 @@ class FlowTests(unittest.TestCase):
         menu_id = self.store.menu_message(100)["message_id"]
         update = self.click(100, "new")
         self.assertEqual(update["callback_query"]["message"]["message_id"], menu_id)
-        pending = self.engine.pending[100]
+        pending = dict(self.store.draft(100))
         before = self.store.counts()[1]
         self.click(100, "menu", message_id=menu_id - 1)
-        self.assertEqual(self.engine.pending[100], pending)
+        self.assertEqual(dict(self.store.draft(100)), pending)
         self.assertEqual(self.store.counts()[1], before + 1)
         self.click(100, "menu")
         self.assertNotIn(100, self.engine.pending)
@@ -127,7 +128,7 @@ class FlowTests(unittest.TestCase):
         edits = [payload for method, payload in api.calls if method == "editMessageText"]
         self.assertEqual([payload["message_id"] for payload in edits], [menu_id] * 3)
         self.assertIn("переробної промисловості", edits[0]["text"])
-        self.assertIn("Підтримка", edits[1]["text"])
+        self.assertIn("Опишіть запитання", edits[1]["text"])
         self.assertNotEqual(edits[0]["reply_markup"], edits[1]["reply_markup"])
         self.assertFalse(any(method == "sendMessage" for method, _ in api.calls))
         self.assertEqual([p for method, p in api.calls if method == "deleteMessage"],
@@ -254,12 +255,12 @@ class FlowTests(unittest.TestCase):
     def test_transaction_rolls_back_offset_and_messages(self):
         self.click(100, "new")
         offset = self.store.offset
-        with patch.object(self.store, "create_draft", side_effect=sqlite3.OperationalError("disk full")):
+        with patch.object(self.store, "update_draft", side_effect=sqlite3.OperationalError("disk full")):
             with self.assertRaises(sqlite3.OperationalError):
                 self.message(100, "Не має загубитися")
         self.assertEqual(self.store.offset, offset)
         self.assertEqual(self.store.counts()[0], 0)
-        self.assertEqual(self.engine.pending[100][0], "new")
+        self.assertEqual(self.store.draft(100)["step"], "question")
 
     def test_group_and_forged_callback_are_ignored(self):
         self.message(100, "/start", chat_type="group")
@@ -542,6 +543,8 @@ class InfrastructureTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "faq.json").write_bytes((ROOT / "faq.json").read_bytes())
+            (root / "content").mkdir()
+            (root / "content" / "navigation.json").write_bytes((ROOT / "content" / "navigation.json").read_bytes())
             runner = Runner("123456789:" + "A" * 35, Settings(), lambda *event: events.append(event), root)
             with patch("infobot.runner.TelegramAPI", return_value=FakeAPI(APIError(401))):
                 runner.start()
@@ -555,6 +558,8 @@ class InfrastructureTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "faq.json").write_bytes((ROOT / "faq.json").read_bytes())
+            (root / "content").mkdir()
+            (root / "content" / "navigation.json").write_bytes((ROOT / "content" / "navigation.json").read_bytes())
             old_store = Store(root / "data" / "bot_123.sqlite3")
             with old_store.db:
                 old_store.enqueue("setMyCommands", {"commands": [{"command": "commands", "description": "Усі команди"}]})
@@ -575,14 +580,17 @@ class InfrastructureTests(unittest.TestCase):
                         return {"url": ""}
                     if method == "getUpdates":
                         self.rounds += 1
-                        if self.rounds > 1:
+                        if self.rounds == 2:
+                            return [{"update_id": 7, "callback_query": {"id": "submit", "from": {"id": 100},
+                                "data": "n:6:form_send", "message": {"chat": {"id": 100, "type": "private"}}}}]
+                        if self.rounds > 2:
                             runner.stop.set()
                             return []
                         return [{"update_id": index, "message": {
                             "message_id": index, "date": int(time.time()), "from": {"id": 100},
                             "chat": {"id": 100, "type": "private"}, "text": text
-                        }} for index, text in enumerate(('/ask', 'Запитання через опитування', 'client@example.test',
-                                                        '+380671234567', 'Шевченко Олена Іванівна', 'ТОВ "Укрхелп"'), 1)]
+                        }} for index, text in enumerate(('/ask', 'Запитання через опитування', 'Шевченко Олена Іванівна',
+                                                        'ТОВ "Укрхелп"', '+380671234567', 'client@example.test'), 1)]
                     return {"message_id": len(self.calls), "date": int(time.time())}
             server = Server()
             with patch("infobot.runner.TelegramAPI", return_value=server):
@@ -591,7 +599,7 @@ class InfrastructureTests(unittest.TestCase):
             self.assertFalse(runner.thread.is_alive())
             self.assertFalse(any(kind == "error" for kind, value in events))
             store = Store(root / "data" / "bot_123.sqlite3")
-            self.assertEqual(store.offset, 7)
+            self.assertEqual(store.offset, 8)
             self.assertEqual(store.counts()[0], 1)
             self.assertEqual(store.history(1)[0]["body"], "Запитання через опитування")
             store.close()

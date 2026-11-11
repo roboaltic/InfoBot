@@ -54,7 +54,7 @@ class Demo(ttk.Frame):
         self.views = {}
         self.inputs = {}
         self.buttons = {}
-        for column, (user_id, title) in enumerate(((1, "Клієнт · демо"), (2, "Диспетчер · демо"))):
+        for column, (user_id, title) in enumerate(((1, "Клієнт · демо"), (2, "Спеціаліст · демо"))):
             self.body.columnconfigure(column, weight=1, uniform="chat")
             self.body.rowconfigure(0, weight=1)
             panel = ttk.LabelFrame(self.body, text=title, padding=10)
@@ -92,7 +92,7 @@ class Demo(ttk.Frame):
         self.append(user_id, "Ви: " + text, message_id)
         self.engine.process({"update_id": self.update_id, "message": {
             "message_id": message_id, "date": int(time.time()),
-            "from": {"id": user_id, "first_name": "Тестовий клієнт" if user_id == 1 else "Диспетчер", "username": "demo_client" if user_id == 1 else "demo_operator"},
+            "from": {"id": user_id, "first_name": "Тестовий клієнт" if user_id == 1 else "Спеціаліст", "username": "demo_client" if user_id == 1 else "demo_operator"},
             "chat": {"id": user_id, "type": "private"}, "text": text}})
         self.drain()
 

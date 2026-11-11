@@ -13,11 +13,11 @@ def configure() -> bool:
     token = getpass('Токен BotFather (ввід прихований; Enter — збережений токен): ').strip() or current_token
     if not token:
         raise ValueError('Потрібен токен BotFather.')
-    raw_operator = input(f'ID диспетчера (Enter — {settings.operator_id}; 0 — підключити через /claim): ').strip()
+    raw_operator = input(f'ID спеціаліста (Enter — {settings.operator_id}; 0 — підключити через /claim): ').strip()
     if raw_operator:
         settings.operator_id = int(raw_operator)
     if settings.operator_id < 0:
-        raise ValueError('ID диспетчера має бути числом >= 0.')
+        raise ValueError('ID спеціаліста має бути числом >= 0.')
     print('Учасники: Enter — залишити поточний список; * — дозволити всіх.')
     raw_allowed = input('Дозволені Telegram ID через кому: ').strip()
     if raw_allowed == '*':

@@ -140,7 +140,7 @@ class MenuCallbackTests(unittest.TestCase):
                                 "chat": {"id": 100, "type": "private"}}}})
                 self.assertEqual(store.db.execute("SELECT count(*) FROM outbox WHERE is_menu=1").fetchone()[0], 1)
                 import json
-                self.assertEqual(json.loads(store.db.execute("SELECT payload FROM outbox WHERE is_menu=1").fetchone()[0])["text"], "Оберіть дію:")
+                self.assertEqual(json.loads(store.db.execute("SELECT payload FROM outbox WHERE is_menu=1").fetchone()[0])["text"], engine.content.data["greeting"])
 
     def test_all_static_actions_reject_stale_or_unrecorded_menu_before_state_changes(self):
         actions = ('menu', 'faq', 'faq:about', 'faqpage:0', 'support', 'help', 'privacy', 'identity',
@@ -184,7 +184,10 @@ class MenuCallbackTests(unittest.TestCase):
                     while store.counts()[1]:
                         delivery.sent_at.clear()
                         delivery.flush()
-                    self.assertEqual(api.calls[0], ("answerCallbackQuery", {"callback_query_id": "faq-click"}))
+                    self.assertEqual(api.calls[0][0], "answerCallbackQuery")
+                    self.assertEqual(api.calls[0][1]["callback_query_id"], "faq-click")
+                    if message_id == 42:
+                        self.assertIn("/start", api.calls[0][1]["text"])
                     self.assertEqual(store.menu_message(100)["message_id"], 43)
                     if message_id == 42:
                         self.assertEqual(len(api.calls), 1)

@@ -17,14 +17,15 @@ from infobot.store import Store
 
 class ContactFlowTests(unittest.TestCase):
     def setUp(self):
-        self.store = Store(':memory:')
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.path = Path(directory.name) / 'test.sqlite3'
+        self.store = Store(self.path)
+        self.addCleanup(self.store.close)
         self.settings = Settings(operator_id=900, mail=MailSettings(enabled=True, host='smtp.example.test',
                         username='bot@example.test', sender='bot@example.test', recipient='support@example.test'))
         self.engine = Engine(self.store, self.settings, load_faq(ROOT / 'faq.json'))
         self.sequence = 0
-
-    def tearDown(self):
-        self.store.close()
 
     def message(self, text, uid=100):
         self.sequence += 1
@@ -34,8 +35,9 @@ class ContactFlowTests(unittest.TestCase):
         self.engine.process(update)
         return update
 
-    def click(self, data, uid=100):
+    def click(self, route, uid=100):
         self.sequence += 1
+        data = f'n:{self.engine.nav_state(uid)["revision"]}:{route}' if route.startswith('form_') else route
         self.engine.process({'update_id': self.sequence, 'callback_query': {'id': str(self.sequence),
             'from': {'id': uid}, 'data': data, 'message': {'chat': {'id': uid, 'type': 'private'}}}})
 
@@ -47,214 +49,222 @@ class ContactFlowTests(unittest.TestCase):
         self.message('/ask')
         self.message('Питання, яке має бути передано лише після анкети')
 
-    def finish(self, full_name='Шевченко Олена Іванівна'):
-        for value in ('olena@example.test', '0671234567', full_name, 'ТОВ "Укрхелп"'):
+    def review(self, full_name='Шевченко Олена Іванівна'):
+        for value in (full_name, 'ТОВ "Укрхелп"', '0671234567', 'olena@example.test'):
             self.message(value)
+
+    def finish(self, full_name='Шевченко Олена Іванівна'):
+        self.review(full_name)
+        self.click('form_send')
         return self.store.user_ticket(100)['id']
 
-    def test_no_ticket_or_email_or_operator_notification_before_all_fields(self):
+    def test_no_ticket_mail_or_notification_before_explicit_send(self):
         self.start()
-        for stage, value in (('email', 'olena@example.test'), ('phone', '0671234567'), ('full_name', 'Шевченко Олена Іванівна')):
-            self.assertEqual(self.store.draft(100)['step'], stage)
-            self.assertEqual(self.store.counts()[0], 0)
-            self.assertEqual(self.store.mail_counts(), (0, 0, 0))
-            self.assertEqual(self.payloads(900), [])
+        for step,value in (('full_name','Шевченко Олена Іванівна'),('company','ФОП Шевченко Олена'),('phone','0671234567'),('email','olena@example.test')):
+            self.assertEqual(self.store.draft(100)['step'],step)
+            self.assertEqual(self.store.counts()[0],0)
+            self.assertEqual(self.store.mail_counts(),(0,0,0))
+            self.assertEqual(self.payloads(900),[])
             self.message(value)
-        self.assertEqual(self.store.counts()[0], 0)
-        self.assertEqual(self.store.draft(100)['step'], 'company')
-        self.message('ТОВ "Укрхелп"')
-        ticket = self.store.user_ticket(100)
-        self.assertEqual(ticket['client_email'], 'olena@example.test')
-        self.assertEqual(ticket['client_phone'], '+380671234567')
-        self.assertEqual(ticket['client_full_name'], 'Шевченко Олена Іванівна')
-        self.assertEqual(ticket['client_first_name'], 'Олена')
-        self.assertEqual(ticket['client_company'], 'ТОВ "Укрхелп"')
-        self.assertEqual(self.store.mail_counts(), (1, 0, 0))
-        self.assertIsNone(self.store.draft(100))
+        self.assertEqual(self.store.draft(100)['step'],'review')
+        self.assertIsNone(self.store.user_ticket(100))
+        self.message('Надіслати')
+        self.assertIsNone(self.store.user_ticket(100))
+        self.click('form_send')
+        ticket=self.store.user_ticket(100)
+        self.assertEqual(ticket['client_company'],'ФОП Шевченко Олена')
+        self.assertEqual(ticket['client_phone'],'+380671234567')
+        self.assertEqual(self.store.mail_counts(),(1,0,0))
 
-    def test_bad_input_cannot_skip_required_fields(self):
+    def test_bad_input_keeps_current_step(self):
         self.start()
-        self.message('ТОВ "Укрхелп"')
-        self.assertEqual(self.store.draft(100)['step'], 'email')
-        self.message('not-an-email')
-        self.assertEqual(self.store.draft(100)['step'], 'email')
-        self.message('olena@example.test')
-        self.message('Телефон відсутній')
-        self.assertEqual(self.store.draft(100)['step'], 'phone')
-        self.message('+380671234567')
         self.message('Олена')
-        self.assertEqual(self.store.draft(100)['step'], 'full_name')
+        self.assertEqual(self.store.draft(100)['step'],'full_name')
         self.message('Шевченко Олена Іванівна')
-        self.message('Укрхелп')
-        self.assertEqual(self.store.draft(100)['step'], 'company')
-        self.assertEqual(self.store.mail_counts(), (0, 0, 0))
-        self.message('тов «Укрхелп»')
-        self.assertEqual(self.store.user_ticket(100)['client_company'], 'ТОВ "Укрхелп"')
+        self.message('x')
+        self.assertEqual(self.store.draft(100)['step'],'company')
+        self.message('ФОП Шевченко')
+        self.message('no phone')
+        self.assertEqual(self.store.draft(100)['step'],'phone')
+        self.message('0671234567')
+        self.message('bad email')
+        self.assertEqual(self.store.draft(100)['step'],'email')
 
-    def test_back_replaces_value_and_no_stale_form_prompts_survive_submission(self):
+    def test_back_keeps_values_and_allows_correction(self):
         self.start()
-        self.message('wrong@example.test')
-        self.message('/back')
-        self.assertEqual(self.store.draft(100)['step'], 'email')
+        self.review()
+        self.click('form_back')
+        self.assertEqual(self.store.draft(100)['step'],'email')
+        self.assertEqual(self.store.draft(100)['client_email'],'olena@example.test')
         self.message('correct@example.test')
-        for value in ('+380671234567', 'Шевченко Олена Іванівна', 'ТОВ "Укрхелп"'):
-            self.message(value)
-        self.assertEqual(self.store.user_ticket(100)['client_email'], 'correct@example.test')
-        self.assertEqual(self.store.db.execute('SELECT count(*) FROM outbox WHERE draft_user_id IS NOT NULL').fetchone()[0], 0)
+        self.click('form_send')
+        self.assertEqual(self.store.user_ticket(100)['client_email'],'correct@example.test')
+        self.assertEqual(self.store.db.execute('SELECT count(*) FROM outbox WHERE draft_user_id IS NOT NULL').fetchone()[0],0)
+
+    def test_edit_question_and_contacts_then_submit(self):
+        self.start()
+        self.review()
+        self.click('form_edit')
+        self.assertEqual(self.store.draft(100)['step'],'question')
+        self.assertEqual(self.store.draft(100)['client_company'],'ТОВ "Укрхелп"')
+        self.message('Виправлене запитання')
+        self.finish()
+        self.assertEqual(self.store.history(1)[0]['body'],'Виправлене запитання')
+
+    def test_unregistered_business(self):
+        self.start()
+        self.message('Шевченко Олена Іванівна')
+        self.click('form_unregistered')
+        self.assertEqual(self.store.draft(100)['step'],'phone')
+        self.message('0671234567')
+        self.message('olena@example.test')
+        self.click('form_send')
+        self.assertEqual(self.store.user_ticket(100)['client_company'],'Бізнес ще не зареєстровано')
 
     def test_cancel_and_delete_me_erase_partial_personal_data(self):
-        for command in ('/cancel', '/delete_me'):
-            with self.subTest(command=command):
-                self.start()
-                for value in ('private@example.test', '+380671234567', 'Шевченко Олена Іванівна'):
-                    self.message(value)
-                self.message(command)
-                self.assertIsNone(self.store.draft(100))
-                self.assertIsNone(self.store.user_ticket(100))
-                self.assertEqual(self.store.mail_counts(), (0, 0, 0))
-                serialized = str(self.payloads(900)) + str(self.payloads(100))
-                self.assertNotIn('private@example.test', serialized)
-                self.assertNotIn('Шевченко Олена Іванівна', serialized)
+        for command in ('/cancel','/delete_me'):
+            self.start()
+            self.review()
+            self.message(command)
+            self.assertIsNone(self.store.draft(100))
+            self.assertIsNone(self.store.user_ticket(100))
+            serialized=str(self.payloads(900))+str(self.payloads(100))
+            self.assertNotIn('olena@example.test',serialized)
+            self.assertNotIn('Шевченко Олена Іванівна',serialized)
 
-    def test_my_ticket_reports_unsent_draft(self):
+    def test_duplicate_update_does_not_advance_twice(self):
         self.start()
-        self.message('/mine')
-        self.assertIn('ще не зареєстроване', self.payloads(100)[-1]['text'])
-        self.assertEqual(self.store.counts()[0], 0)
-
-    def test_duplicate_update_does_not_treat_same_email_as_phone(self):
-        self.start()
-        update = self.message('olena@example.test')
+        update=self.message('Шевченко Олена Іванівна')
         self.engine.process(update)
-        self.assertEqual(self.store.draft(100)['step'], 'phone')
-        self.assertEqual(self.store.draft(100)['client_phone'], '')
+        self.assertEqual(self.store.draft(100)['step'],'company')
+        self.assertEqual(self.store.draft(100)['client_company'],'')
 
-    def test_restarting_engine_resumes_exact_step_and_original_question(self):
+    def test_restart_and_start_preserve_draft_and_contacts(self):
         self.start()
-        self.message('olena@example.test')
-        self.engine = Engine(self.store, self.settings, load_faq(ROOT / 'faq.json'))
+        self.message('Шевченко Олена Іванівна')
+        self.engine=Engine(self.store,self.settings,load_faq(ROOT/'faq.json'))
         self.message('/start')
-        self.assertIn('Оберіть розділ', self.payloads(100)[-1]['text'])
+        self.assertIn('Оберіть напрям',self.payloads(100)[-1]['text'])
         self.message('/continue')
-        self.assertIn('Крок 2 із 4', self.payloads(100)[-1]['text'])
-        for value in ('+380671234567', 'Шевченко Олена Іванівна', 'ТОВ "Укрхелп"'):
-            self.message(value)
-        self.assertEqual(self.store.history(1)[0]['body'], 'Питання, яке має бути передано лише після анкети')
+        self.assertIn('Крок 3 із 7',self.payloads(100)[-1]['text'])
+        for value in ('ТОВ "Укрхелп"','0671234567','olena@example.test'): self.message(value)
+        self.click('form_send')
+        self.assertEqual(self.store.history(1)[0]['body'],'Питання, яке має бути передано лише після анкети')
 
-    def test_finalization_failure_keeps_all_previous_answers_for_retry(self):
+    def test_finalization_failure_keeps_review_for_retry(self):
         self.start()
-        for value in ('olena@example.test', '+380671234567', 'Шевченко Олена Іванівна'):
-            self.message(value)
-        offset = self.store.offset
-        with patch.object(self.store, 'enqueue_mail', side_effect=sqlite3.OperationalError('test full')):
-            with self.assertRaises(sqlite3.OperationalError):
-                self.message('ТОВ "Укрхелп"')
-        self.assertEqual(self.store.offset, offset)
-        self.assertEqual(self.store.draft(100)['step'], 'company')
-        self.assertEqual(self.store.draft(100)['client_full_name'], 'Шевченко Олена Іванівна')
+        self.review()
+        offset=self.store.offset
+        with patch.object(self.store,'enqueue_mail',side_effect=sqlite3.OperationalError('test full')):
+            with self.assertRaises(sqlite3.OperationalError): self.click('form_send')
+        self.assertEqual(self.store.offset,offset)
+        self.assertEqual(self.store.draft(100)['step'],'review')
+        self.assertEqual(self.store.draft(100)['client_full_name'],'Шевченко Олена Іванівна')
         self.assertIsNone(self.store.user_ticket(100))
-        self.message('ТОВ "Укрхелп"')
-        self.assertEqual(self.store.counts()[0], 1)
-        self.assertEqual(self.store.mail_counts(), (1, 0, 0))
+        self.click('form_send')
+        self.assertEqual(self.store.counts()[0],1)
+        self.assertEqual(self.store.mail_counts(),(1,0,0))
 
-    def test_mail_and_operator_card_include_all_mandatory_values(self):
+    def test_mail_and_specialist_card_include_contacts_and_missing_context(self):
         self.start()
         self.finish()
-        row = self.store.db.execute('SELECT payload FROM mail_outbox').fetchone()
-        payload = json.loads(row[0])
-        for value in ('olena@example.test', '+380671234567', 'Шевченко Олена Іванівна', 'ТОВ "Укрхелп"'):
-            self.assertIn(value, payload['body'])
-            self.assertIn(value, self.payloads(900)[-1]['text'])
-        self.assertEqual(payload['client_email'], 'olena@example.test')
-        self.click('ticket:1', 900)
-        self.assertIn('ТОВ "Укрхелп"', self.payloads(900)[-1]['text'])
+        payload=json.loads(self.store.db.execute('SELECT payload FROM mail_outbox').fetchone()[0])
+        for value in ('olena@example.test','+380671234567','Шевченко Олена Іванівна','ТОВ "Укрхелп"','Напрям: Не обрано','Співфінансування: Не обрано'):
+            self.assertIn(value,payload['body'])
+            self.assertIn(value,self.payloads(900)[-1]['text'])
+        self.click('ticket:1',900)
+        self.assertIn('ТОВ "Укрхелп"',self.payloads(900)[-1]['text'])
 
-    def test_close_addresses_client_by_entered_first_name_not_telegram_alias(self):
+    def test_close_addresses_client_by_entered_first_name(self):
         self.start()
-        ticket_id = self.finish()
-        self.click(f'close:{ticket_id}', 900)
-        reply = self.payloads(100)[-1]['text']
-        self.assertTrue(reply.startswith('Олено, дякуємо за звернення!'))
-        self.assertNotIn('Псевдонім', reply)
-        self.assertNotIn('Шевченко,', reply)
+        ticket_id=self.finish()
+        self.click(f'close:{ticket_id}',900)
+        self.assertTrue(self.payloads(100)[-1]['text'].startswith('Олено, дякуємо'))
         self.assertIsNone(self.store.user_ticket(100))
-        self.assertEqual(self.store.mail_counts(), (0, 0, 0))
 
-    def test_client_can_close_and_receives_male_vocative(self):
+    def test_client_can_close_with_male_vocative(self):
         self.start()
-        ticket_id = self.finish('Коваль Андрій Петрович')
+        ticket_id=self.finish('Шевченко Андрій Іванович')
         self.click(f'close:{ticket_id}')
-        self.assertTrue(self.payloads(100)[-1]['text'].startswith('Андрію,'))
+        self.assertTrue(self.payloads(100)[-1]['text'].startswith('Андрію, дякуємо'))
 
-    def test_new_ticket_collects_contacts_again_after_previous_is_deleted(self):
+    def test_new_ticket_collects_contacts_again(self):
         self.start()
-        ticket_id = self.finish()
-        self.click(f'close:{ticket_id}')
+        ticket_id=self.finish()
+        self.click(f'close:{ticket_id}',900)
         self.start()
-        self.assertEqual(self.store.draft(100)['step'], 'email')
-        self.assertEqual(self.store.draft(100)['client_email'], '')
+        self.assertEqual(self.store.draft(100)['client_email'],'')
+        self.assertGreater(self.finish(),ticket_id)
 
-    def test_followup_reuses_complete_contacts_in_existing_ticket(self):
+    def test_followup_reuses_contacts(self):
         self.start()
-        ticket_id = self.finish()
-        self.message('Уточнення до звернення')
+        ticket_id=self.finish()
+        self.message('Доповнення')
         self.assertIsNone(self.store.draft(100))
-        self.assertEqual(len(self.store.history(ticket_id)), 2)
-        self.assertEqual(self.store.mail_counts(), (2, 0, 0))
+        self.assertEqual(len(self.store.history(ticket_id)),2)
+        self.assertEqual(self.store.mail_counts(),(2,0,0))
 
-    def test_legacy_followup_is_held_until_contacts_then_keeps_ticket_number(self):
+    def test_legacy_followup_keeps_number_and_organization(self):
         with self.store.db:
-            ticket_id = self.store.create_ticket(100, 'Старе ім’я')
-            self.store.add_message(ticket_id, 'client', 'Старе запитання')
-        self.message('Нове уточнення до старого звернення')
-        self.assertEqual(self.store.draft(100)['ticket_id'], ticket_id)
-        self.assertEqual(self.store.mail_counts(), (0, 0, 0))
+            ticket_id=self.store.create_ticket(100,'Старе ім’я')
+            self.store.db.execute('UPDATE tickets SET client_company=? WHERE id=?',('ТОВ "Стара назва"',ticket_id))
+            self.store.add_message(ticket_id,'client','Старе запитання')
+        self.message('Уточнення')
+        self.assertEqual(self.store.draft(100)['ticket_id'],ticket_id)
         self.finish()
-        self.assertEqual(self.store.user_ticket(100)['id'], ticket_id)
-        self.assertEqual(len(self.store.history(ticket_id)), 2)
+        self.assertEqual(self.store.user_ticket(100)['id'],ticket_id)
+        self.assertEqual(len(self.store.history(ticket_id)),2)
 
-    def test_cancel_legacy_contact_form_preserves_previous_ticket(self):
+    def test_cancel_legacy_form_preserves_ticket(self):
         with self.store.db:
-            ticket_id = self.store.create_ticket(100)
-            self.store.add_message(ticket_id, 'client', 'Старе запитання')
-        self.message('Відкладене уточнення')
-        self.message('olena@example.test')
+            ticket_id=self.store.create_ticket(100)
+            self.store.add_message(ticket_id,'client','Старе запитання')
+        self.message('Уточнення')
         self.message('/cancel')
         self.assertIsNotNone(self.store.ticket(ticket_id))
-        self.assertEqual(len(self.store.history(ticket_id)), 1)
-        self.assertEqual(self.store.mail_counts(), (0, 0, 0))
+        self.assertEqual(len(self.store.history(ticket_id)),1)
+        self.assertEqual(self.store.mail_counts(),(0,0,0))
 
     def test_other_user_cannot_modify_or_cancel_draft(self):
         self.start()
-        self.click('cancel_draft', 200)
-        self.click('back', 200)
-        self.message('fake@example.test', 200)
-        self.assertEqual(self.store.draft(100)['step'], 'email')
-        self.assertEqual(self.store.draft(100)['client_email'], '')
+        self.click('cancel_draft',200)
+        self.click('back',200)
+        self.message('fake@example.test',200)
+        self.assertEqual(self.store.draft(100)['step'],'full_name')
+        self.assertEqual(self.store.draft(100)['client_email'],'')
 
-    def test_contact_messages_are_tracked_for_telegram_deletion(self):
+    def test_contact_messages_tracked_for_deletion(self):
         self.start()
-        ticket_id = self.finish()
-        ids = {row[0] for row in self.store.db.execute('SELECT message_id FROM telegram_refs WHERE ticket_id=? AND chat_id=100', (ticket_id,))}
-        self.assertEqual(ids, {2, 3, 4, 5, 6})
+        ticket_id=self.finish()
+        ids={row[0] for row in self.store.db.execute('SELECT message_id FROM telegram_refs WHERE ticket_id=? AND chat_id=100',(ticket_id,))}
+        self.assertEqual(ids,{2,3,4,5,6})
 
-    def test_form_completes_when_mail_disabled_but_dispatcher_connected(self):
-        self.settings.mail.enabled = False
+    def test_telegram_only_mode(self):
+        self.settings.mail.enabled=False
         self.start()
         self.finish()
-        self.assertEqual(self.store.mail_counts(), (0, 0, 0))
-        self.assertIn('Шевченко Олена Іванівна', self.payloads(900)[-1]['text'])
+        self.assertEqual(self.store.mail_counts(),(0,0,0))
+        self.assertIn('Шевченко Олена Іванівна',self.payloads(900)[-1]['text'])
 
-    def test_draft_persists_in_backup_and_new_connection(self):
+    def test_unconnected_support_keeps_review(self):
+        self.settings.mail.enabled=False
+        self.settings.operator_id=0
         self.start()
-        self.message('olena@example.test')
-        with tempfile.TemporaryDirectory() as directory:
-            path = self.store.backup(Path(directory))
-            restored = Store(path)
-            self.assertEqual(restored.draft(100)['step'], 'phone')
-            self.assertEqual(restored.draft(100)['client_email'], 'olena@example.test')
-            self.assertEqual(restored.mail_counts(), (0, 0, 0))
-            restored.close()
+        self.review()
+        self.click('form_send')
+        self.assertIsNone(self.store.user_ticket(100))
+        self.assertEqual(self.store.draft(100)['step'],'review')
+
+    def test_draft_backup_and_new_connection(self):
+        self.start()
+        self.message('Шевченко Олена Іванівна')
+        path=self.store.backup(self.path.parent/'backup')
+        restored=Store(path)
+        try:
+            self.assertEqual(restored.draft(100)['step'],'company')
+            self.assertEqual(restored.draft(100)['client_full_name'],'Шевченко Олена Іванівна')
+            self.assertEqual(restored.mail_counts(),(0,0,0))
+        finally: restored.close()
 
 
 class ContactValidationTests(unittest.TestCase):

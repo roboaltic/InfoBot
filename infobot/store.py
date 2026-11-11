@@ -4,6 +4,7 @@ import json
 import sqlite3
 import time
 from datetime import datetime, timezone
+from contextlib import closing
 from pathlib import Path
 
 
@@ -19,6 +20,10 @@ class Store:
         self.db.execute("PRAGMA journal_mode=DELETE")
         self.db.executescript("""
             CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS client_navigation (
+                user_id INTEGER PRIMARY KEY,
+                state TEXT NOT NULL
+            );
             CREATE TABLE IF NOT EXISTS connections (
                 user_id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
@@ -104,6 +109,24 @@ class Store:
                 self.db.execute('ALTER TABLE outbox ADD COLUMN draft_user_id INTEGER REFERENCES drafts(user_id) ON DELETE CASCADE')
             if 'is_menu' not in outbox_columns:
                 self.db.execute('ALTER TABLE outbox ADD COLUMN is_menu INTEGER NOT NULL DEFAULT 0')
+            for table in ('drafts', 'tickets'):
+                existing = {row[1] for row in self.db.execute(f'PRAGMA table_info({table})')}
+                if 'grant_context' not in existing:
+                    self.db.execute(f"ALTER TABLE {table} ADD COLUMN grant_context TEXT NOT NULL DEFAULT '{{}}'")
+            if 'form_version' not in {row[1] for row in self.db.execute('PRAGMA table_info(drafts)')}:
+                self.db.execute('ALTER TABLE drafts ADD COLUMN form_version INTEGER NOT NULL DEFAULT 1')
+
+    def navigation(self, user_id: int) -> dict:
+        row = self.db.execute('SELECT state FROM client_navigation WHERE user_id=?', (user_id,)).fetchone()
+        try:
+            value = json.loads(row[0]) if row else {}
+        except (ValueError, TypeError):
+            return {}
+        return value if isinstance(value, dict) else {}
+
+    def save_navigation(self, user_id: int, state: dict):
+        self.db.execute('INSERT INTO client_navigation VALUES (?,?) ON CONFLICT(user_id) DO UPDATE SET state=excluded.state',
+                        (user_id, json.dumps(state, ensure_ascii=False)))
 
     def close(self):
         self.db.close()
@@ -145,10 +168,11 @@ class Store:
         self.db.execute('''INSERT INTO drafts(user_id,ticket_id,question,telegram_name,telegram_username,message_refs,created_at,updated_at)
                            VALUES (?,?,?,?,?,?,?,?)''',
                         (user_id, ticket_id, question, telegram_name, telegram_username,
-                         json.dumps([{'id': message_id, 'date': date}]), time.time(), time.time()))
+                         json.dumps([{'id': message_id, 'date': date}] if message_id > 0 else []), time.time(), time.time()))
 
     def update_draft(self, user_id: int, **values):
-        allowed = {'step', 'client_email', 'client_phone', 'client_full_name', 'client_first_name', 'client_company'}
+        allowed = {'step', 'client_email', 'client_phone', 'client_full_name', 'client_first_name', 'client_company',
+                   'question', 'grant_context', 'form_version'}
         if not values or not set(values) <= allowed:
             raise ValueError('Недопустимі поля чернетки')
         fields = ','.join(key + '=?' for key in values)
@@ -287,6 +311,6 @@ class Store:
         stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f_UTC")
         prefix = "infobot" if self.path == ":memory:" else Path(self.path).stem
         path = directory / f"{prefix}_{stamp}.sqlite3"
-        with sqlite3.connect(path) as target:
+        with closing(sqlite3.connect(path)) as target:
             self.db.backup(target)
         return path

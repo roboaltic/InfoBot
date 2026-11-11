@@ -50,33 +50,28 @@ class MenuAndFAQTests(unittest.TestCase):
         self.message('/ask', 100)
         self.message('Потрібне уточнення щодо обладнання', 100)
 
-    def test_welcome_has_exactly_three_customer_buttons_and_topic(self):
+    def test_welcome_has_exactly_five_customer_buttons(self):
         self.message('/start', 100)
-        self.assertEqual([b['text'] for b in self.buttons(100)], ['Поширені запитання', 'Підтримка', 'Запитання диспетчеру'])
-        greeting = self.last(100)['text']
-        self.assertIn('гранти на обладнання', greeting)
-        self.assertNotIn('диспетчер', greeting.lower())
+        self.assertEqual([b['text'] for b in self.buttons(100)], ['Створення виробництва', 'Розвиток виробництва', 'Відновлення виробництва', 'Допомогти з вибором', 'Звернутися до підтримки'])
+        self.assertIn('гранти', self.last(100)['text'])
         self.assertEqual(self.store.counts()[0], 0)
 
-    def test_start_preserves_draft_and_exact_three_button_menu(self):
+    def test_start_preserves_draft_and_opens_initial_menu(self):
         self.begin_draft()
-        self.message('client@example.test', 100)
+        self.message('Шевченко Олена Іванівна', 100)
         self.message('/start', 100)
-        self.assertEqual(len(self.buttons(100)), 3)
-        self.assertEqual(self.store.draft(100)['step'], 'phone')
+        self.assertEqual(len(self.buttons(100)), 5)
+        self.assertEqual(self.store.draft(100)['step'], 'company')
         self.click('support', 100)
-        self.assertTrue({'continue', 'back', 'cancel_draft'} <= {b['callback_data'] for b in self.buttons(100)})
-        self.click('continue', 100)
-        self.assertIn('Крок 2 із 4', self.last(100)['text'])
+        self.assertIn('Крок 3 із 7', self.last(100)['text'])
         self.assertIn('обладнання', self.store.draft(100)['question'])
-        self.click('support', 100)
         self.click('back', 100)
-        self.assertEqual(self.store.draft(100)['step'], 'email')
+        self.assertEqual(self.store.draft(100)['step'], 'full_name')
 
-    def test_support_contains_customer_action_buttons(self):
+    def test_support_opens_unified_intake_and_commands_remain_available(self):
         self.message('/support', 100)
-        self.assertEqual({b['callback_data'] for b in self.buttons(100)}, {'mine', 'privacy', 'identity', 'menu'})
-        self.assertNotIn(100, self.engine.pending)
+        self.assertEqual({b['text'] for b in self.buttons(100)}, {'Назад', 'Скасувати'})
+        self.assertEqual(self.store.draft(100)['step'], 'question')
         self.click('identity', 100)
         self.assertIn('100', self.last(100)['text'])
         self.click('privacy', 100)
@@ -86,14 +81,14 @@ class MenuAndFAQTests(unittest.TestCase):
         self.click('new', 100)
         for request, value in ((self.message, '/commands'), (self.click, 'commands')):
             request(value, 100)
-            self.assertIn('лише диспетчеру', self.last(100)['text'])
+            self.assertIn('лише спеціалісту', self.last(100)['text'])
             self.assertNotIn('/reply', self.last(100)['text'])
-            self.assertIn(100, self.engine.pending)
+            self.assertIsNotNone(self.store.draft(100))
             request(value, 900)
             self.assertIn('/reply', self.last()['text'])
         self.settings.operator_id = 901
         self.click('commands', 900)
-        self.assertIn('лише диспетчеру', self.last()['text'])
+        self.assertIn('лише спеціалісту', self.last()['text'])
 
     def test_cancel_button_abandons_question_prompt_and_preserves_saved_draft(self):
         self.click('new', 100)
@@ -107,11 +102,11 @@ class MenuAndFAQTests(unittest.TestCase):
 
     def test_dispatcher_panel_available_only_to_current_dispatcher(self):
         self.message('/start')
-        self.assertEqual(len(self.buttons()), 4)
+        self.assertEqual(len(self.buttons()), 6)
         self.click('admin')
         self.assertTrue({'faqmanage', 'commands'} <= {b['callback_data'] for b in self.buttons()})
         self.click('admin', 100)
-        self.assertIn('лише диспетчеру', self.last(100)['text'])
+        self.assertIn('лише спеціалісту', self.last(100)['text'])
 
     def test_all_21_questions_are_reachable_in_pages(self):
         identifiers = []
@@ -140,7 +135,7 @@ class MenuAndFAQTests(unittest.TestCase):
         before = self.catalog.snapshot()
         for action in ('faqmanage', 'faqadd', 'faqedit:about', 'faqfield:about:answer', 'faqremove:about', 'faqdelete:about:0'):
             self.click(action, 100)
-            self.assertIn('лише диспетчеру', self.last(100)['text'])
+            self.assertIn('лише спеціалісту', self.last(100)['text'])
         self.message('Чужа відповідь', 100)
         self.assertEqual(before, self.catalog.snapshot())
         self.assertNotIn(100, self.engine.faq_edits)
@@ -183,7 +178,7 @@ class MenuAndFAQTests(unittest.TestCase):
         self.message('https://example.test/source')
         self.click('faq:about', 100)
         self.assertIn('Оновлена відповідь.', self.last(100)['text'])
-        self.assertIn('Оновлено диспетчером', self.last(100)['text'])
+        self.assertIn('Оновлено спеціалістом', self.last(100)['text'])
 
     def test_faq_answer_accepts_3000_units_outside_ticket_limit(self):
         self.click('faqfield:about:answer')
@@ -229,7 +224,7 @@ class MenuAndFAQTests(unittest.TestCase):
     def test_revoked_dispatcher_cannot_finish_an_edit_or_delete(self):
         self.click('faqfield:about:answer')
         self.settings.operator_id = 901
-        self.message('Текст колишнього диспетчера')
+        self.message('Текст колишнього спеціаліста')
         self.assertNotIn(900, self.engine.faq_edits)
         self.click('faqdelete:about:0')
         self.assertIsNotNone(self.catalog.get('about'))
@@ -273,11 +268,12 @@ class MenuAndFAQTests(unittest.TestCase):
         self.message('Текст після виходу з редагування.')
         self.assertEqual(self.catalog.revision, 0)
 
-    def test_support_navigation_cancels_unsent_new_question_prompt(self):
-        self.message('/ask', 100)
+    def test_support_navigation_resumes_unsent_question(self):
+        self.click('new', 100)
         self.click('support', 100)
-        self.message('Звичайний текст у розділі команд', 100)
-        self.assertIsNone(self.store.draft(100))
+        self.message('Питання', 100)
+        self.assertEqual(self.store.draft(100)['question'], 'Питання')
+        self.assertEqual(self.store.draft(100)['step'], 'full_name')
 
     def test_write_error_does_not_stop_engine_or_publish_answer(self):
         self.click('faqfield:about:answer')
@@ -287,7 +283,7 @@ class MenuAndFAQTests(unittest.TestCase):
         self.assertEqual(self.catalog.snapshot(), before)
         self.assertIn('Не вдалося зберегти FAQ', self.last()['text'])
         self.message('/start', 100)
-        self.assertEqual(len(self.buttons(100)), 3)
+        self.assertEqual(len(self.buttons(100)), 5)
 
     def test_backup_contains_live_edited_faq_next_to_database(self):
         with tempfile.TemporaryDirectory() as directory:

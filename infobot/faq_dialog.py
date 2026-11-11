@@ -22,8 +22,12 @@ class FAQDialogs:
 
     def show_faq(self, user_id, value='0', manage=False, *, notice=''):
         if manage and user_id != self.settings.operator_id:
-            self.say(user_id, 'Редагування FAQ доступне лише диспетчеру.', self.menu(user_id))
+            self.say(user_id, 'Редагування FAQ доступне лише спеціалісту.', self.menu(user_id))
             return
+        if not manage:
+            state = self.nav_state(user_id)
+            state['screen'] = 'legacy_faq:' + value
+            self.store.save_navigation(user_id, state)
         items, revision = self.faq_catalog.snapshot()
         page = page_number(value, len(items))
         prefix = 'faqedit:' if manage else 'faq:'
@@ -39,14 +43,18 @@ class FAQDialogs:
         if user_id == self.settings.operator_id:
             rows.append([('Додати запитання', 'faqadd') if manage else ('Редагувати FAQ', 'faqmanage')])
         if manage:
-            rows.append([('Панель диспетчера', 'admin')])
+            rows.append([('Панель спеціаліста', 'admin')])
         else:
-            rows.append([('Запитання диспетчеру', 'new')])
+            rows.append([(self.nav_label('support'), 'new')])
         rows.append([('Головне меню', 'menu')])
         title = 'Редагування FAQ' if manage else 'Поширені запитання про гранти на обладнання'
         self.say(user_id, f'{notice}{title}\nСторінка {page + 1} із {(len(items) - 1) // PAGE_SIZE + 1}. Оберіть запитання.', buttons(rows))
 
     def show_faq_answer(self, user_id, identifier, edit=False, *, notice=''):
+        if not edit:
+            state = self.nav_state(user_id)
+            state['screen'] = 'legacy_answer:' + identifier
+            self.store.save_navigation(user_id, state)
         item = self.faq_catalog.get(identifier)
         if not item:
             self.say(user_id, 'Це запитання вже видалено. Оновіть список.', buttons([[('Оновити FAQ', 'faq')]]))
@@ -57,7 +65,7 @@ class FAQDialogs:
         if item.get('verified_at'):
             text += '\n\nІнформацію звірено: ' + item['verified_at'] + '.'
         elif item.get('updated_at'):
-            text += '\n\nОновлено диспетчером: ' + item['updated_at'] + '.'
+            text += '\n\nОновлено спеціалістом: ' + item['updated_at'] + '.'
         rows = []
         if edit:
             rows.extend([[('Змінити запитання', f'faqfield:{identifier}:question')],
@@ -66,7 +74,7 @@ class FAQDialogs:
                          [('Видалити запитання', f'faqremove:{identifier}')]])
         rows.extend([[('До списку запитань', f'{"faqmanage" if edit else "faqpage"}:{index // PAGE_SIZE}')]])
         if not edit:
-            rows.append([('Запитання диспетчеру', 'new')])
+            rows.append([(self.nav_label('support'), 'new')])
         rows.append([('Головне меню', 'menu')])
         markup = buttons(rows)
         if item.get('source_url'):
@@ -76,7 +84,7 @@ class FAQDialogs:
     def faq_admin_callback(self, user_id, data):
         if user_id != self.settings.operator_id:
             self.faq_edits.pop(user_id, None)
-            self.say(user_id, 'Редагування FAQ доступне лише диспетчеру.', self.menu(user_id))
+            self.say(user_id, 'Редагування FAQ доступне лише спеціалісту.', self.menu(user_id))
             return
         parts = data.split(':')
         action = parts[0]
