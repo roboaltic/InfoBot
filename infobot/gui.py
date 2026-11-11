@@ -79,7 +79,7 @@ class App:
         self.operator = tk.StringVar(value=f"Диспетчер: {self.settings.operator_id or 'не підключений'}")
         self.claim = tk.StringVar()
         ttk.Label(launch, text='Токен BotFather (вводиться лише на цьому комп’ютері):').pack(anchor='w')
-        self.token_entry = ttk.Entry(launch, textvariable=self.token, show='*', font=('Consolas', 11))
+        self.token_entry = ttk.Entry(launch, textvariable=self.token, font=('Consolas', 11))
         self.token_entry.pack(fill='x', pady=(5, 10))
         self.form_widgets.append((self.token_entry, 'normal'))
         ttk.Label(launch, text='Учасники тесту: Telegram ID через кому; порожнє поле — доступно всім, хто знайде бота.').pack(anchor='w')
