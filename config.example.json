@@ -1,0 +1,14 @@
+{
+  "operator_id": 0,
+  "delete_telegram_on_close": true,
+  "allowed_user_ids": [],
+  "mail": {
+    "enabled": false,
+    "host": "",
+    "port": 465,
+    "security": "ssl",
+    "username": "",
+    "sender": "",
+    "recipient": ""
+  }
+}

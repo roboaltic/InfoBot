@@ -1,0 +1,40 @@
+# Runtime data: config, credentials, databases, backups, edited FAQ and lock.
+/data/
+/config.json
+*.secret
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Local databases and their journal/WAL/SHM files, including backups.
+*.sqlite
+*.sqlite3
+*.db
+*.sqlite-*
+*.sqlite3-*
+*.db-*
+/backups/
+
+# Logs, Python caches, test caches and environments.
+*.log
+/logs/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+ENV/
+.write-*
+
+# Local agent credentials/settings and editor/OS files.
+/.aws/
+/.codex/
+/.agents/
+/.idea/
+/.vscode/
+.DS_Store
+Thumbs.db
