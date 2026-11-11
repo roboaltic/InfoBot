@@ -69,6 +69,14 @@ class ClientSupport:
             context['help_answers'] = state['help_answers']
         return context
 
+    def draft_context(self, uid, draft):
+        saved=json.loads(draft['grant_context'])
+        if self.document_content and self.document_content.data['revision']=='0.2':
+            return self.context(uid,saved.get('origin','home'))
+        if self.document_content and 'direction' in saved:
+            return saved
+        return self.context(uid,saved.get('origin','home'))
+
     def context_summary(self, context):
         data = self.content.data
         messages = data['support']
@@ -113,6 +121,7 @@ class ClientSupport:
             rows = [[(self.nav_label('send'), 'form_send')], [(self.nav_label('edit'), 'form_edit')],
                     [(self.nav_label('back'), 'form_back')], [(self.nav_label('cancel'), 'form_cancel')]]
             if self.document_content:
+                context=self.draft_context(uid,draft)
                 text = self.document_content.text('P06', **{
                     'напрям або «Не обрано»': self.content.data['directions'].get(context.get('direction'), 'Не обрано'),
                     'співвідношення або «Не обрано»': (context.get('ratio') or 'Не обрано').replace('_','/'),
@@ -244,8 +253,7 @@ class ClientSupport:
         ticket_id = draft['ticket_id'] or self.store.create_ticket(
             uid, draft['telegram_name'], draft['telegram_username'], submission_id=draft['submission_id'])
         self.store.set_contacts(ticket_id, draft)
-        saved_context = json.loads(draft['grant_context'])
-        context = saved_context if self.document_content and 'direction' in saved_context else self.context(uid, saved_context.get('origin','home'))
+        context = self.draft_context(uid,draft)
         self.store.db.execute('UPDATE tickets SET grant_context=? WHERE id=?',
                               (json.dumps(context, ensure_ascii=False), ticket_id))
         refs = [item for item in json.loads(draft['message_refs']) if item['id'] > 0]

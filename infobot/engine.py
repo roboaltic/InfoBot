@@ -83,13 +83,18 @@ class Engine(DocumentNavigation, ClientSupport, ClientNavigation, FAQDialogs):
         self.faq_catalog = faq_catalog or FAQCatalog(faq)
         self.document_content = document_content
         if document_content:
-            self.faq_catalog.seed(document_content.faq_defaults, 'content_v01')
+            if document_content.data['revision']=='0.2':
+                self.faq_catalog.upgrade_content(document_content.faq_defaults, document_content.previous_faq_defaults)
+            else:
+                self.faq_catalog.seed(document_content.faq_defaults, 'content_v01')
         self.on_operator = on_operator or (lambda user_id: None)
         self.mail_template = mail_template or MailTemplate()
         self.bot_username = '@' + bot_username if bot_username else 'InfoBot'
         self.pairing = Pairing()
         self.pending: OrderedDict[int, tuple[str, int, float]] = OrderedDict()
         self.faq_edits: dict[int, dict] = {}
+        if document_content:
+            self.refresh_queued_content()
 
     @property
     def faq(self):
@@ -132,6 +137,8 @@ class Engine(DocumentNavigation, ClientSupport, ClientNavigation, FAQDialogs):
                 self.store.enqueue('sendMessage', {'chat_id':user_id,'text':chunk}, ticket_id, draft_user_id)
             text = chunks[-1]
         payload = {'chat_id': user_id, 'text': text}
+        if self.document_content and not notification:
+            payload['_content_revision']=self.document_content.data['revision']
         if fresh_menu and not notification:
             # Durable delivery metadata; removed before calling Telegram.
             payload['_fresh_menu'] = True

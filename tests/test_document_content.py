@@ -87,7 +87,8 @@ class DocumentFlowTests(unittest.TestCase):
         self.assertEqual(self.engine.nav_state(uid)['screen'],'s:'+direction)
         self.click('s:R00',uid)
         self.click('s:'+ratio,uid)
-        self.assertIn('інформаційний вибір', self.screen(uid)['text'])
+        self.assertIn('Перейти до меню гранту', [button['text'] for button in self.buttons(uid)])
+        self.assertNotIn('інформаційний вибір', self.screen(uid)['text'])
         self.click('s:M02',uid)
 
     def review(self, uid=100):
@@ -115,8 +116,8 @@ class DocumentFlowTests(unittest.TestCase):
                         for sid in children:
                             self.click('s:'+sid)
                             text = self.screen()['text']
-                            self.assertIn('потребує звірення',text)
-                            self.assertNotRegex(text,r'\bS[0-6]\b|screen_id|На затвердження')
+                            self.assertIn('Порядок, затверджений постановою КМУ від 24.06.2022 №739',text)
+                            self.assertNotRegex(text,r'\bS[0-8]\b|screen_id|На затвердження|потребує звірення')
                             self.assertTrue(any(b.get('url','').startswith('https:') for b in self.buttons()))
                             self.assertLessEqual(text_size(text),4096)
                             self.click('doc_back')
@@ -180,15 +181,15 @@ class DocumentFlowTests(unittest.TestCase):
         self.message('/start')
         self.select('D03','R80')
         self.click('support')
-        self.assertIn('Розвиток виробництва',self.screen()['text'])
+        self.assertIn('Відновлення виробництва',self.screen()['text'])
         old_send = next(b['callback_data'] for b in self.buttons() if b['text']=='Надіслати')
         self.click('form_send')
         ticket=self.store.user_ticket(100)
         self.assertEqual(ticket['client_email'],'new@example.test')
         self.assertEqual(ticket['client_full_name'],'Іваненко Марія —')
         snapshot=json.loads(ticket['grant_context'])
-        self.assertEqual(snapshot['direction'],'develop')
-        self.assertEqual(snapshot['ratio'],'70_30')
+        self.assertEqual(snapshot['direction'],'restore')
+        self.assertEqual(snapshot['ratio'],'80_20')
         self.assertEqual(snapshot['origin'],'s:F03')
         self.assertTrue(ticket['submission_id'])
         self.callback(old_send)
@@ -307,6 +308,9 @@ class DocumentFlowTests(unittest.TestCase):
         self.review()
         self.assertTrue(any(b.get('url')==self.settings.privacy_policy_url for b in self.buttons()))
         with self.store.db:
+            state=self.engine.nav_state(100)
+            state['help_answers']={'H01':'а'*500,'H02':'б'*500,'H03':'в'*500}
+            self.store.save_navigation(100,state)
             self.store.update_draft(100,question='<b>'+('🙂'*996)+'</b>',
                                    client_full_name='А'*60+' '+'Б'*60+' '+'В'*60,
                                    client_company='Г'*180, grant_context=json.dumps({
@@ -356,8 +360,8 @@ class DocumentFlowTests(unittest.TestCase):
     def test_preserved_faq_bindings_apply_to_legacy_list_and_direct_answer(self):
         self.select('D01','R50')
         self.catalog.update('about',{'directions':['restore']},self.catalog.revision)
+        self.catalog.approve('about',self.catalog.revision)
         self.click('s:Q00')
-        self.click('doc_legacy')
         self.assertFalse(any(b.get('callback_data')=='faq:about' for b in self.buttons()))
         self.callback('faq:about')
         self.assertNotIn(self.catalog.get('about')['answer'],self.screen()['text'])
@@ -429,6 +433,7 @@ class DocumentCatalogTests(unittest.TestCase):
                 path=Path(directory)/'screens.json'
                 path.write_text(json.dumps(data),encoding='utf-8')
                 path.with_name('faq_v01.json').write_bytes((ROOT/'content/faq_v01.json').read_bytes())
+                path.with_name('faq_v02.json').write_bytes((ROOT/'content/faq_v02.json').read_bytes())
                 with self.assertRaises(ValueError):
                     ScreenCatalog(path)
 

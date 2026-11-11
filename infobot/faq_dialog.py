@@ -22,7 +22,9 @@ class FAQDialogs:
 
     def visible_legacy_faq(self, user_id):
         state = self.nav_state(user_id)
-        return [item for item in self.faq if not item.get('screen_id') and
+        current = self.document_content and self.document_content.data['revision']=='0.2'
+        return [item for item in self.faq if not item.get('screen_id') and not item.get('needs_revision_review') and
+                (not current or item.get('content_revision')=='0.2') and
                 ('*' in item.get('directions',['*']) or state['direction'] in item['directions']) and
                 ('*' in item.get('ratios',['*']) or state['ratio'] in item['ratios'])]
 
@@ -37,6 +39,9 @@ class FAQDialogs:
         items, revision = self.faq_catalog.snapshot()
         if self.document_content and not manage:
             items = self.visible_legacy_faq(user_id)
+            if not items:
+                self.document_render(user_id,'Q00',remember=False)
+                return
         page = page_number(value, len(items))
         prefix = 'faqedit:' if manage else 'faq:'
         rows = [[(item['question'], prefix + item['id'])] for item in items[page * PAGE_SIZE:(page + 1) * PAGE_SIZE]]
@@ -123,6 +128,8 @@ class FAQDialogs:
             self.pending.pop(user_id, None)
             self.faq_edits[user_id] = {'action': 'add', 'field': 'question', 'revision': revision,
                                        'item': {'id': uuid.uuid4().hex[:20]}, 'expires': time.monotonic() + 1800}
+            if self.document_content and self.document_content.data['revision']=='0.2':
+                self.faq_edits[user_id]['item']['content_revision']='0.2'
             self.say(user_id, 'Введіть нове запитання одним рядком, до 60 одиниць UTF-16. Скасувати: /cancel.')
         elif action == 'faqfield' and len(parts) == 3 and parts[2] in ('question', 'answer', 'source_url', 'directions', 'ratios'):
             if not self.faq_catalog.get(identifier):

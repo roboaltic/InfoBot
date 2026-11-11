@@ -45,6 +45,7 @@ class Delivery:
                 continue
             payload = json.loads(job["payload"])
             fresh_menu = payload.pop('_fresh_menu', False)
+            payload.pop('_content_revision',None)
             old_menu = self.store.menu_message(destination) if job["is_menu"] else None
             try:
                 result = self.render_menu(payload, fresh_menu=fresh_menu) if job["is_menu"] else self.api.call(job["method"], payload)

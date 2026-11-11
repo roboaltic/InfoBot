@@ -10,7 +10,7 @@ from urllib.parse import urlsplit
 
 from .settings import InstanceLock, atomic_write
 
-MAX_ITEMS = 60
+MAX_ITEMS = 68  # 60 попередніх записів плюс 8 карток документа без втрати даних.
 
 
 class FAQConflict(ValueError):
@@ -71,6 +71,15 @@ def validate_items(items) -> list[dict]:
             if not isinstance(item['sources'], list) or len(item['sources'])>7:
                 raise ValueError('Некоректні джерела FAQ.')
             item['sources'] = [validate_source(url) for url in item['sources']]
+        if 'references' in item:
+            refs=item['references']
+            if not isinstance(refs,list) or len(refs)>8:
+                raise ValueError('Некоректні нормативні посилання FAQ.')
+            for ref in refs:
+                if not isinstance(ref,dict) or not isinstance(ref.get('description'),str) or not ref['description'].strip() or not isinstance(ref.get('point'),str):
+                    raise ValueError('Некоректний опис нормативного посилання FAQ.')
+                if not validate_source(ref.get('url')):
+                    raise ValueError('Для нормативного посилання потрібен URL.')
         if 'pending' in item:
             pending = item['pending']
             if not isinstance(pending,dict) or 'pending' in pending or pending.get('id')!=identifier:
@@ -160,10 +169,60 @@ class FAQCatalog:
                 self._migrations.remove(migration)
                 raise
 
+    def upgrade_content(self, defaults, previous):
+        """Оновити типові картки; авторські правки та видалення залишити недоторканими."""
+        with self._lock:
+            marker='content_v02'
+            if marker in self._migrations:
+                return
+            items=copy.deepcopy(self._items)
+            old={item['id']:item for item in previous}
+            new={item['id']:item for item in defaults}
+            existing={item['id'] for item in items}
+            comparable=('question','answer','source_url','sources','directions','ratios','as_of','source_points')
+            for index,item in enumerate(items):
+                identifier=item['id']
+                if identifier in new and (all(item.get(key)==new[identifier].get(key) for key in comparable) or
+                    identifier in old and all(item.get(key)==old[identifier].get(key) for key in comparable)):
+                    pending=item.get('pending')
+                    items[index]=copy.deepcopy(new[identifier])
+                    if pending:
+                        pending['content_revision']='0.2'
+                        items[index]['pending']=pending
+                        items[index]['approval_status']='draft'
+                    continue
+                # Старі чи змінені правові тексти збережено в тому самому записі,
+                # але вони не є альтернативними чинними правилами редакції 0.2.
+                pending=copy.deepcopy(item.get('pending',item))
+                pending.pop('pending',None)
+                pending['content_revision']='0.2'
+                if identifier in new:
+                    replacement=copy.deepcopy(new[identifier])
+                    replacement['previous_publication']={key:value for key,value in item.items() if key!='pending'}
+                    replacement['pending']=pending
+                    replacement['approval_status']='draft'
+                    items[index]=replacement
+                    continue
+                item['pending']=pending
+                item['needs_revision_review']=True
+                item['approval_status']='draft'
+            if 'content_v01' not in self._migrations:
+                items.extend(copy.deepcopy(item) for item in defaults if item['id'] not in existing)
+            self._migrations.append(marker)
+            try:
+                self._commit(items,self._revision)
+            except Exception:
+                self._migrations.remove(marker)
+                raise
+
     def add(self, item: dict, expected_revision: int):
         with self._lock:
             candidate = copy.deepcopy(item)
             candidate['updated_at'] = datetime.now(timezone.utc).date().isoformat()
+            if candidate.get('content_revision')=='0.2':
+                candidate['pending']=copy.deepcopy(candidate)
+                candidate['needs_revision_review']=True
+                candidate['approval_status']='draft'
             self._commit(self._items + [candidate], expected_revision)
 
     def update(self, identifier: str, values: dict, expected_revision: int):
@@ -175,7 +234,8 @@ class FAQCatalog:
             if item is None:
                 raise FAQConflict('Це запитання вже видалено. Оновіть список.')
             published = item
-            if item.get('screen_id'):
+            staged=bool(item.get('screen_id') or item.get('needs_revision_review'))
+            if staged:
                 item = copy.deepcopy(item.get('pending', item))
                 item.pop('pending',None)
             if ('answer' in values and values['answer'] != item['answer']) or ('source_url' in values and values['source_url'] != item.get('source_url', '')):
@@ -184,11 +244,13 @@ class FAQCatalog:
                 item.pop('as_of', None)
                 item.pop('sources', None)
                 item.pop('source_points', None)
+                item.pop('references', None)
+                item.pop('checked_at', None)
                 if 'source_url' not in values:
                     item['source_url'] = ''
             item.update(values)
             item['updated_at'] = datetime.now(timezone.utc).date().isoformat()
-            if published.get('screen_id'):
+            if staged:
                 published['pending'] = item
                 published['approval_status'] = 'draft'
             self._commit(items, expected_revision)
@@ -202,6 +264,7 @@ class FAQCatalog:
             pending = item.pop('pending')
             item.clear()
             item.update(pending)
+            item.pop('needs_revision_review',None)
             item['approval_status'] = 'approved'
             self._commit(items, expected_revision)
 

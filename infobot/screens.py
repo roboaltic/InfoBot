@@ -1,4 +1,4 @@
-"""Каталог документа 0.1: дані, перевірка та навігація без оцінки права на грант."""
+"""Спільний каталог екранів, нормативних посилань і переходів InfoBot."""
 from __future__ import annotations
 
 import json
@@ -24,8 +24,15 @@ class ScreenCatalog:
     def __init__(self, path: Path = ROOT / 'content' / 'screens.json'):
         self.data = json.loads(path.read_text(encoding='utf-8'))
         self.screens = self.data['screens']
-        self.faq_defaults = validate_items(json.loads(path.with_name('faq_v01.json').read_text(encoding='utf-8')))
+        self.faq_defaults = self.load_faq_file(path, self.data.get('faq_file','faq_v01.json'))
+        self.previous_faq_defaults = self.load_faq_file(path,self.data['previous_faq_file']) if self.data.get('previous_faq_file') else []
         self.validate()
+
+    @staticmethod
+    def load_faq_file(path, filename):
+        if not isinstance(filename,str) or Path(filename).name!=filename or not filename.endswith('.json'):
+            raise ValueError('Некоректне ім’я файла FAQ.')
+        return validate_items(json.loads(path.with_name(filename).read_text(encoding='utf-8')))
 
     def validate(self):
         if self.data.get('schema') != 1 or self.data.get('faq_page_size') != 4:
@@ -52,6 +59,8 @@ class ScreenCatalog:
                 raise ValueError('Невідоме FAQ екрана.')
             if any(source not in self.data['sources'] for source in screen['source_ids']):
                 raise ValueError('Невідоме джерело.')
+            for ref in screen.get('references',[]):
+                self.validate_reference(ref)
             for button in screen['buttons']:
                 if not 1 <= size(button['label']) <= 64:
                     raise ValueError('Завеликий підпис кнопки.')
@@ -66,6 +75,16 @@ class ScreenCatalog:
                     raise ValueError('Невідомий перехід: ' + target)
                 elif button['kind'] not in ('source', 'navigate', 'input'):
                     raise ValueError('Невідома дія кнопки.')
+        for item in self.faq_defaults:
+            for ref in item.get('references',[]):
+                self.validate_reference(ref)
+
+    def validate_reference(self, ref):
+        if (not isinstance(ref,dict) or ref.get('source_id') not in self.data['sources'] or
+            not isinstance(ref.get('description'),str) or not ref['description'].strip() or not isinstance(ref.get('point'),str)):
+            raise ValueError('Некоректний опис нормативного посилання.')
+        if not ref.get('url') or validate_source(ref['url'])!=self.data['sources'][ref['source_id']]['url']:
+            raise ValueError('Посилання не відповідає джерелу.')
 
     def text(self, sid, **values):
         body = self.screens[sid].get('body', '')
@@ -100,7 +119,7 @@ class DocumentNavigation:
 
     def document_faq(self, uid):
         state = self.nav_state(uid)
-        return [item for item in self.faq if item.get('screen_id') and
+        return [item for item in self.faq if item.get('screen_id') and not item.get('needs_revision_review') and
                 ('*' in item.get('directions', ['*']) or state['direction'] in item['directions']) and
                 ('*' in item.get('ratios', ['*']) or state['ratio'] in item['ratios'])]
 
@@ -143,7 +162,8 @@ class DocumentNavigation:
                 rows.append([(ui['previous'], 'doc_page:' + str(page-1))])
             if (page+1)*4 < len(items):
                 rows.append([(ui['next'], 'doc_page:' + str(page+1))])
-            rows.append([(ui['legacy_faq'], 'doc_legacy')])
+            if self.visible_legacy_faq(uid):
+                rows.append([(ui['legacy_faq'], 'doc_legacy')])
         else:
             for index, button in enumerate(screen['buttons']):
                 label, target, kind = button['label'], button['target'], button['kind']
@@ -178,20 +198,19 @@ class DocumentNavigation:
             rows.append([(ui['back'], 'doc_back')])
         if uid == self.settings.operator_id and sid == 'M01':
             rows.append([(self.nav_label('admin'), 'admin')])
-        if sid in RATIOS:
+        if sid in RATIOS and catalog.data.get('selection_notice'):
             text += '\n\n' + catalog.data['selection_notice']
-        if sid.startswith(('F', 'A', 'B', 'Q', 'R')) and sid not in ('Q00', 'R00'):
+        if catalog.data.get('legal_notice') and sid.startswith(('F', 'A', 'B', 'Q', 'R')) and sid not in ('Q00', 'R00'):
             text += '\n\n' + catalog.data['legal_notice']
             text += '\n\n' + catalog.data['source_notice']
         if sid == 'H04':
             text += '\n\n' + ui['helper_summary'] + '\n' + '\n'.join(state['help_answers'].values())
             text += '\n\n' + ui['helper_notice']
-        if screen['source_ids']:
-            # Internal source IDs and editorial status never appear to the client.
-            source_points = item.get('source_points','') if sid.startswith('Q') and sid!='Q00' else screen['source_points']
-            points = re.search(r'пункт(?:и|у)? ([0-9, –—-]+)', source_points)
-            if points:
-                text += '\n\n' + ui['sources_points'] + ' ' + points[1].strip()
+        refs = item.get('references',[]) if sid.startswith('Q') and sid!='Q00' else screen.get('references',[])
+        if refs:
+            text += '\n\n' + '\n'.join(self.reference_text(ref) for ref in refs)
+        if sid=='R00' and state['direction']=='restore':
+            text += '\n\n' + catalog.data.get('recovery_notice','')
         if sid.startswith('Q') and sid!='Q00' and item.get('as_of'):
             text += '\n\nІнформація станом на ' + item['as_of']
         if sid not in ('M01', 'D04') and state['direction']:
@@ -207,12 +226,38 @@ class DocumentNavigation:
             for source_id in reversed(screen['source_ids']):
                 source = catalog.data['sources'][source_id]
                 if source['url']:
-                    label = next((button['label'] for button in screen['buttons'] if button['kind']=='source' and button['target']==source_id), source['title'])
+                    label = next((button['label'] for button in screen['buttons'] if button['kind']=='source' and button['target']==source_id), source.get('short_title',source['title']))
                     markup['inline_keyboard'].insert(0, [{'text': label, 'url': source['url']}])
         body = title + '\n\n' + text
-        if size(body) > 4096:
-            raise ValueError('Текст екрана перевищує ліміт Telegram.')
         self.say(uid, body, markup, fresh_menu=fresh_menu)
+
+    def reference_text(self, ref):
+        source = self.document_content.data['sources'][ref['source_id']]
+        title = source.get('citation_title',source.get('short_title',source['title']))
+        return title+(' — пункт '+ref['point'] if ref.get('point') else '')+': '+ref['description']
+
+    def refresh_queued_content(self):
+        """Не доставляти закешований текст старої редакції після перезапуску."""
+        jobs=self.store.db.execute('SELECT * FROM outbox WHERE is_menu=1 ORDER BY id').fetchall()
+        latest={job['destination']:job for job in jobs}
+        for uid,job in latest.items():
+            if uid==self.settings.operator_id:
+                continue
+            payload=json.loads(job['payload'])
+            if payload.get('_content_revision')==self.document_content.data['revision']:
+                continue
+            callbacks=[button.get('callback_data','') for row in payload.get('reply_markup',{}).get('inline_keyboard',[]) for button in row]
+            # Картки й робочі повідомлення звернення мають власний життєвий цикл.
+            if not any(value.startswith(('n:','faq:','faqpage:')) for value in callbacks):
+                continue
+            with self.store.db:
+                self.store.db.execute('DELETE FROM outbox WHERE is_menu=1 AND destination=?',(uid,))
+                if self.store.draft(uid) and any('form_' in value for value in callbacks):
+                    self.prompt_draft(uid)
+                else:
+                    state=self.nav_state(uid)
+                    self.document_render(uid,self.document_route(uid,state['screen']),
+                                         fresh_menu=payload.get('_fresh_menu',False),remember=False)
 
     def document_callback(self, uid, route):
         state = self.nav_state(uid)
@@ -272,7 +317,9 @@ class DocumentNavigation:
         self.document_render(uid, target)
 
     def document_render_helper_prompt(self, uid):
-        self.nav_say(uid, self.document_content.text('H01') + '\n\n' + self.document_content.data['ui']['input'],
+        sid = self.document_route(uid,self.nav_state(uid)['screen'])
+        sid = sid if sid in ('H01','H02','H03') else 'H01'
+        self.nav_say(uid, self.document_content.text(sid) + '\n\n' + self.document_content.data['ui']['input'],
                      self.document_links(uid))
 
     def document_message(self, uid, text):

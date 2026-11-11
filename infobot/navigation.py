@@ -134,6 +134,8 @@ class ClientNavigation:
         self.say(uid, text, markup, **kwargs)
 
     def nav_label(self, name):
+        if self.document_content and name in ('grant','confirm'):
+            return self.document_content.data['ui']['grant']
         return self.content.data['labels'][name]
 
     def nav_links(self, uid, back):

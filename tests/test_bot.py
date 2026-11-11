@@ -545,7 +545,7 @@ class InfrastructureTests(unittest.TestCase):
             (root / "faq.json").write_bytes((ROOT / "faq.json").read_bytes())
             (root / "content").mkdir()
             (root / "content" / "navigation.json").write_bytes((ROOT / "content" / "navigation.json").read_bytes())
-            for name in ("screens.json", "faq_v01.json"):
+            for name in ("screens.json", "faq_v01.json", "faq_v02.json"):
                 (root / "content" / name).write_bytes((ROOT / "content" / name).read_bytes())
             runner = Runner("123456789:" + "A" * 35, Settings(), lambda *event: events.append(event), root)
             with patch("infobot.runner.TelegramAPI", return_value=FakeAPI(APIError(401))):
@@ -562,7 +562,7 @@ class InfrastructureTests(unittest.TestCase):
             (root / "faq.json").write_bytes((ROOT / "faq.json").read_bytes())
             (root / "content").mkdir()
             (root / "content" / "navigation.json").write_bytes((ROOT / "content" / "navigation.json").read_bytes())
-            for name in ("screens.json", "faq_v01.json"):
+            for name in ("screens.json", "faq_v01.json", "faq_v02.json"):
                 (root / "content" / name).write_bytes((ROOT / "content" / name).read_bytes())
             old_store = Store(root / "data" / "bot_123.sqlite3")
             with old_store.db:
