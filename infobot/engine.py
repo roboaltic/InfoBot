@@ -260,9 +260,13 @@ class Engine(DocumentNavigation, ClientSupport, ClientNavigation, FAQDialogs):
         elif action == 'faq' and not value:
             self.open_client_faq(user_id)
         elif action == 'faq':
-            self.render_nav(user_id, 'faqanswer:' + value) if self.nav_state(user_id)['confirmed'] else self.show_faq_answer(user_id, value)
+            if self.document_content:
+                item = self.faq_catalog.get(value)
+                self.document_render(user_id,item['screen_id']) if item and item.get('screen_id') else self.show_faq_answer(user_id,value)
+            else:
+                self.render_nav(user_id, 'faqanswer:' + value) if self.nav_state(user_id)['confirmed'] else self.show_faq_answer(user_id, value)
         elif action == 'faqpage':
-            self.render_nav(user_id, 'faq:' + value) if self.nav_state(user_id)['confirmed'] else self.show_faq(user_id, value)
+            self.show_faq(user_id,value) if self.document_content or not self.nav_state(user_id)['confirmed'] else self.render_nav(user_id,'faq:'+value)
         elif action in edit_actions:
             self.faq_admin_callback(user_id, data)
         elif action == 'admin':

@@ -353,6 +353,27 @@ class DocumentFlowTests(unittest.TestCase):
         self.restart()
         self.assertEqual(self.catalog.preview('q02')['answer'],'Неопублікований правовий текст')
 
+    def test_preserved_faq_bindings_apply_to_legacy_list_and_direct_answer(self):
+        self.select('D01','R50')
+        self.catalog.update('about',{'directions':['restore']},self.catalog.revision)
+        self.click('s:Q00')
+        self.click('doc_legacy')
+        self.assertFalse(any(b.get('callback_data')=='faq:about' for b in self.buttons()))
+        self.callback('faq:about')
+        self.assertNotIn(self.catalog.get('about')['answer'],self.screen()['text'])
+        self.select('D03','R80')
+        self.click('s:Q00')
+        self.click('doc_legacy')
+        self.assertTrue(any(b.get('callback_data')=='faq:about' for b in self.buttons()))
+        self.click('faq:about')
+        self.assertIn(self.catalog.get('about')['answer'],self.screen()['text'])
+        self.click('new')
+        self.click('form_cancel')
+        self.click('s:legacy_answer:about')
+        self.assertIn(self.catalog.get('about')['answer'],self.screen()['text'])
+        self.click('faqpage:0')
+        self.assertTrue(any(b.get('callback_data')=='faq:about' for b in self.buttons()))
+
     def test_unchanged_menu_and_rejected_old_keyboard_cleanup_do_not_duplicate_replacement(self):
         from infobot.telegram import APIError
         self.select()

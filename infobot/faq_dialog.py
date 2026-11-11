@@ -20,6 +20,12 @@ def page_number(value, count):
 class FAQDialogs:
     """Customer navigation and role-checked dispatcher FAQ editing."""
 
+    def visible_legacy_faq(self, user_id):
+        state = self.nav_state(user_id)
+        return [item for item in self.faq if not item.get('screen_id') and
+                ('*' in item.get('directions',['*']) or state['direction'] in item['directions']) and
+                ('*' in item.get('ratios',['*']) or state['ratio'] in item['ratios'])]
+
     def show_faq(self, user_id, value='0', manage=False, *, notice=''):
         if manage and user_id != self.settings.operator_id:
             self.say(user_id, 'Редагування FAQ доступне лише спеціалісту.', self.menu(user_id))
@@ -29,6 +35,8 @@ class FAQDialogs:
             state['screen'] = 'legacy_faq:' + value
             self.store.save_navigation(user_id, state)
         items, revision = self.faq_catalog.snapshot()
+        if self.document_content and not manage:
+            items = self.visible_legacy_faq(user_id)
         page = page_number(value, len(items))
         prefix = 'faqedit:' if manage else 'faq:'
         rows = [[(item['question'], prefix + item['id'])] for item in items[page * PAGE_SIZE:(page + 1) * PAGE_SIZE]]
@@ -56,6 +64,9 @@ class FAQDialogs:
             state['screen'] = 'legacy_answer:' + identifier
             self.store.save_navigation(user_id, state)
         item = self.faq_catalog.get(identifier)
+        if self.document_content and not edit and item and item not in self.visible_legacy_faq(user_id):
+            self.show_faq(user_id)
+            return
         if not item:
             self.say(user_id, 'Це запитання вже видалено. Оновіть список.', buttons([[('Оновити FAQ', 'faq')]]))
             return

@@ -78,6 +78,8 @@ class ScreenCatalog:
 
 class DocumentNavigation:
     def document_route(self, uid, route):
+        if route and route.startswith(('legacy_faq:', 'legacy_answer:')):
+            return route
         if route and route.startswith('s:'):
             return route[2:]
         if route == 'preview':
@@ -103,6 +105,10 @@ class DocumentNavigation:
                 ('*' in item.get('ratios', ['*']) or state['ratio'] in item['ratios'])]
 
     def document_render(self, uid, sid, *, fresh_menu=False, remember=True):
+        if sid.startswith('legacy_faq:'):
+            return self.show_faq(uid,sid.partition(':')[2])
+        if sid.startswith('legacy_answer:'):
+            return self.show_faq_answer(uid,sid.partition(':')[2])
         catalog = self.document_content
         state = self.nav_state(uid)
         if sid not in catalog.screens:
@@ -248,6 +254,8 @@ class DocumentNavigation:
             target = button['target']
         elif route.startswith('s:'):
             target = route[2:]
+            if target.startswith(('legacy_faq:', 'legacy_answer:')):
+                return self.document_render(uid,target)
             if target not in self.document_content.screens or target.startswith(('P','E')):
                 return
             if target in DIRECTIONS:
