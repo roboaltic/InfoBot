@@ -116,7 +116,8 @@ class DocumentFlowTests(unittest.TestCase):
                         for sid in children:
                             self.click('s:'+sid)
                             text = self.screen()['text']
-                            self.assertIn('Порядок, затверджений постановою КМУ від 24.06.2022 №739',text)
+                            self.assertNotIn('Порядок, затверджений постановою КМУ від 24.06.2022 №739',text)
+                            self.assertTrue(any(b.get('text','').startswith('Джерело · пункт ') and '#n' in b.get('url','') for b in self.buttons()))
                             self.assertNotRegex(text,r'\bS[0-8]\b|screen_id|На затвердження|потребує звірення')
                             self.assertTrue(any(b.get('url','').startswith('https:') for b in self.buttons()))
                             self.assertLessEqual(text_size(text),4096)

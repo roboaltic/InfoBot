@@ -140,7 +140,41 @@
           "source_id": "S1",
           "point": "1, 4–6",
           "description": "Створення виробництва.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "1",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n618",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "4",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n630",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "5",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n643",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "6",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n650",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -187,7 +221,41 @@
           "source_id": "S1",
           "point": "1, 4–6",
           "description": "Розвиток виробництва.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "1",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n618",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "4",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n630",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "5",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n643",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "6",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n650",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -239,7 +307,33 @@
           "source_id": "S1",
           "point": "4, 6, 17",
           "description": "Відновлення виробництва.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "4",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n630",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "6",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n650",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "17",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n788",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -296,7 +390,33 @@
           "source_id": "S1",
           "point": "1, 5–6",
           "description": "Допомогти з вибором.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "1",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n618",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "5",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n643",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "6",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n650",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -353,7 +473,17 @@
           "source_id": "S1",
           "point": "4",
           "description": "Оберіть співфінансування.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "4",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n630",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -400,7 +530,17 @@
           "source_id": "S1",
           "point": "4",
           "description": "Пункт 4 — співфінансування 50/50 для інших грантів; положення починається словами «до 50 відсотків вартості проекту».",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "4",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n630",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -447,7 +587,17 @@
           "source_id": "S1",
           "point": "4",
           "description": "Пункт 4 — співфінансування 70/30 та сертифікат українського походження основних засобів; положення «до 70 відсотків вартості проекту».",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "4",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n630",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -499,7 +649,17 @@
           "source_id": "S1",
           "point": "4",
           "description": "Пункт 4 — співфінансування 80/20, територіальні та галузеві категорії й винятки для Києва та області; положення «до 80 відсотків вартості проекту».",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "4",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n630",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -551,7 +711,17 @@
           "source_id": "S1",
           "point": "4",
           "description": "Допомогти визначити умови.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "4",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n630",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -613,7 +783,41 @@
           "source_id": "S1",
           "point": "3–4, 9, 17",
           "description": "Яке виробництво плануєте.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "3",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n627",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "4",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n630",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "9",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n660",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "17",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n788",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -665,7 +869,25 @@
           "source_id": "S1",
           "point": "4, 17",
           "description": "Яке обладнання плануєте придбати.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "4",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n630",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "17",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n788",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -722,7 +944,17 @@
           "source_id": "S1",
           "point": "4",
           "description": "Підсумок перевірки умов.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "4",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n630",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -825,7 +1057,49 @@
           "source_id": "S1",
           "point": "3–6, 9",
           "description": "Умови та фінансування.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "3",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n627",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "4",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n630",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "5",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n643",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "6",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n650",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "9",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n660",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -872,7 +1146,33 @@
           "source_id": "S1",
           "point": "3, 9, 17",
           "description": "Пункт 3 — коло отримувачів і діяльність; пункт 9 — вимоги та обмеження для заявників; пункт 17 — перевірка уповноваженим банком.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "3",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n627",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "9",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n660",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "17",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n788",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -924,7 +1224,17 @@
           "source_id": "S1",
           "point": "4",
           "description": "Пункт 4 — граничні суми, співвідношення фінансування та власні некредитні кошти; перший і заключний абзаци пункту.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "4",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n630",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -976,7 +1286,17 @@
           "source_id": "S1",
           "point": "6",
           "description": "Пункт 6 — перелік напрямів витрат, обмеження та особливості обладнання.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "6",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n650",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1033,7 +1353,121 @@
           "source_id": "S1",
           "point": "10–23",
           "description": "Подання та розгляд заяви.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "10",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n675",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "11",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n684",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "12",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n733",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "13",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n781",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "14",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n782",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "15",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n783",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "16",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n784",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "17",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n788",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "18",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n818",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "19",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n819",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "20",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n828",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "21",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n831",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "22",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n833",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "23",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n847",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1085,7 +1519,41 @@
           "source_id": "S1",
           "point": "10–12, 17",
           "description": "Пункт 10 — заява й обов’язковий бізнес-план; пункти 11 і 12 — відомості заявників; пункт 17 — підтвердні документи.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "10",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n675",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "11",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n684",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "12",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n733",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "17",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n788",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1132,7 +1600,17 @@
           "source_id": "S1",
           "point": "17",
           "description": "Пункт 17 — документи щодо пошкодженого обладнання під час перевірки: витяг із ЄРДР і документ про збитки.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "17",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n788",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1184,7 +1662,17 @@
           "source_id": "S1",
           "point": "10",
           "description": "Пункт 10 — електронне подання, підпис і блокування заяви та бізнес-плану для редагування.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "10",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n675",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1231,7 +1719,17 @@
           "source_id": "S1",
           "point": "17",
           "description": "Пункт 17 — перевірка заявника й бізнес-плану уповноваженим банком та співбесіда.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "17",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n788",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1283,7 +1781,49 @@
           "source_id": "S1",
           "point": "17, 22–25",
           "description": "Пункт 22 — підстави відмови; пункт 23 — інформування банком через email, SMS або інші засоби електронної комунікації; пункт 24 — перенесення розгляду за відсутності фінансування; пункт 25 — оновлення статусу в Дії.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "17",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n788",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "22",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n833",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "23",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n847",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "24",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n866",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "25",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n868",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1340,7 +1880,121 @@
           "source_id": "S1",
           "point": "26–39",
           "description": "Після схвалення гранту.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "26",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n869",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "27",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n895",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "28",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n904",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "29",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n913",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "30",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n923",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "31",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n939",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "32",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n940",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "33",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n944",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "34",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n952",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "35",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n963",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "36",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n979",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "37",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n980",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "38",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n981",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "39",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n986",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1392,7 +2046,25 @@
           "source_id": "S1",
           "point": "26, 32",
           "description": "Пункт 26 — договір приєднання; пункт 32 — КВЕД, рахунок, внесок протягом 10 робочих днів та анулювання рішення.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "26",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n869",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "32",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n940",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1444,7 +2116,33 @@
           "source_id": "S1",
           "point": "6, 33, 39",
           "description": "Пункт 39 — платіжні документи, оплата, підтвердження придбання й заміна постачальника; пункт 33 — повернення коштів за договором постачання.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "6",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n650",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "33",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n944",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "39",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n986",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1492,7 +2190,41 @@
           "source_id": "S1",
           "point": "26, 28–29, 35",
           "description": "Пункт 26 — обов’язкові платежі, альтернативні умови щодо персоналу та документи; пункт 28 — наслідки порушення; пункт 35 — моніторинг.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "26",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n869",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "28",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n904",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "29",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n913",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "35",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n963",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1563,7 +2295,73 @@
           "source_id": "S1",
           "point": "5, 27–31, 35, 38",
           "description": "Пункт 29 — підтвердження виконання умов та оновлення статусу; пункти 30–31 — судовий спір; пункт 38 — невикористаний залишок.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "5",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n643",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "27",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n895",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "28",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n904",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "29",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n913",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "30",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n923",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "31",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n939",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "35",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n963",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "38",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n981",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1725,7 +2523,41 @@
           "source_id": "S1",
           "point": "5, 10, 29, 32",
           "description": "Пункт 5 — повторний грант та врахування попереднього; пункт 29 — підтвердження виконання договору; пункти 10 і 32 — повторне подання після відмови або анулювання. Пункт 29 — зняття з моніторингу після повернення через невиконання обов’язкових умов без права повторного гранту.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "5",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n643",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "10",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n675",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "29",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n913",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "32",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n940",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1772,7 +2604,57 @@
           "source_id": "S1",
           "point": "27–29, 33, 35, 38",
           "description": "Пункти 27–28 — невиконання умов; пункт 33 — розірвання постачання; пункт 35 — наслідки моніторингу; пункт 38 — невикористані кошти. Пункт 29 — зняття з моніторингу після повернення через невиконання обов’язкових умов без права повторного гранту.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "27",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n895",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "28",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n904",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "29",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n913",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "33",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n944",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "35",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n963",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "38",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n981",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1819,7 +2701,25 @@
           "source_id": "S1",
           "point": "33, 39",
           "description": "Пункт 39 — обґрунтування заміни постачальника; пункт 33 — повернення коштів на рахунок отримувача.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "33",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n944",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "39",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n986",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1866,7 +2766,25 @@
           "source_id": "S1",
           "point": "30–31",
           "description": "Пункти 30–31 — продовження строків у зв’язку із судовим спором із постачальником та підтвердні документи.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "30",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n923",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "31",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n939",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1913,7 +2831,17 @@
           "source_id": "S1",
           "point": "5",
           "description": "Пункт 5 — пошкодження виробництва після гранту, перевищення втрат над грантом, витяг із ЄРДР та акт оцінки втрат.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "5",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n643",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -1960,7 +2888,17 @@
           "source_id": "S1",
           "point": "10",
           "description": "Пункт 10 — блокування поданої заяви та бізнес-плану й повторне подання.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "10",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n675",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -2007,7 +2945,33 @@
           "source_id": "S1",
           "point": "23–25",
           "description": "Пункт 23 — інформування банком; пункт 24 — перенесення розгляду за відсутності фінансування; пункт 25 — оновлення статусу в Дії.",
-          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+          "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+          "verified_links": [
+            {
+              "point": "23",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n847",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "24",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n866",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            },
+            {
+              "point": "25",
+              "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n868",
+              "checked_at": "2026-11-12",
+              "document_revision": "2026-10-27",
+              "verification": "official_html",
+              "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+            }
+          ]
         },
         {
           "source_id": "S7",
@@ -2463,5 +3427,315 @@
   },
   "normative_basis": "Порядок, затверджений постановою КМУ від 24.06.2022 №739, зі змінами постанови КМУ від 23.10.2026 №1326, чинними з 27.10.2026.",
   "transitional_rule": "Пункт 3 постанови КМУ від 23.10.2026 №1326: абзаци 25–34 підпункту 18, підпункти 20 та 21 пункту 1 затверджених змін застосовуються з 24.06.2022. Це правило не охоплює всі жовтневі зміни.",
-  "recovery_notice": "Для відновлення пошкоджених основних засобів передбачено співфінансування 80/20. Інші співвідношення можна переглянути для порівняння."
+  "recovery_notice": "Для відновлення пошкоджених основних засобів передбачено співфінансування 80/20. Інші співвідношення можна переглянути для порівняння.",
+  "point_links": {
+    "1": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n618",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "2": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n625",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "3": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n627",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "4": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n630",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "5": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n643",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "6": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n650",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "7": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n657",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "8": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n658",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "9": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n660",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "10": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n675",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "11": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n684",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "12": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n733",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "13": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n781",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "14": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n782",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "15": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n783",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "16": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n784",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "17": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n788",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "18": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n818",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "19": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n819",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "20": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n828",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "21": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n831",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "22": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n833",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "23": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n847",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "24": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n866",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "25": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n868",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "26": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n869",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "27": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n895",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "28": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n904",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "29": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n913",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "30": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n923",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "31": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n939",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "32": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n940",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "33": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n944",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "34": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n952",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "35": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n963",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "36": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n979",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "37": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n980",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "38": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n981",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "39": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n986",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "40": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n995",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "41": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n996",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "42": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n997",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "43": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n998",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    },
+    "44": {
+      "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n999",
+      "checked_at": "2026-11-12",
+      "document_revision": "2026-10-27",
+      "verification": "official_html",
+      "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+    }
+  }
 }

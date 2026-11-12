@@ -10,6 +10,8 @@ from string import Formatter
 from .faq import size, validate_source, validate_items
 from .settings import ROOT
 
+PRESENTATION_REVISION = 'interface-2026-11-12'
+
 DIRECTIONS = {'D01': 'create', 'D02': 'develop', 'D03': 'restore'}
 RATIOS = {'R50': '50_50', 'R70': '70_30', 'R80': '80_20'}
 OLD_ROUTES = {'home': 'M01', 'choose_help': 'D04', 'ratios': 'R00', 'ratio_help': 'H01',
@@ -85,6 +87,11 @@ class ScreenCatalog:
             raise ValueError('Некоректний опис нормативного посилання.')
         if not ref.get('url') or validate_source(ref['url'])!=self.data['sources'][ref['source_id']]['url']:
             raise ValueError('Посилання не відповідає джерелу.')
+        for link in ref.get('verified_links', []):
+            registered = self.data.get('point_links', {}).get(link.get('point'))
+            if (ref['source_id'] != 'S1' or not registered or link.get('url') != registered['url']
+                    or not re.fullmatch(r'https://zakon\.rada\.gov\.ua/laws/show/739-2022-%D0%BF#n\d+', link['url'])):
+                raise ValueError('Неперевірений якір нормативного посилання.')
 
     def text(self, sid, **values):
         body = self.screens[sid].get('body', '')
@@ -202,21 +209,35 @@ class DocumentNavigation:
             text += '\n\n' + catalog.data['selection_notice']
         if catalog.data.get('legal_notice') and sid.startswith(('F', 'A', 'B', 'Q', 'R')) and sid not in ('Q00', 'R00'):
             text += '\n\n' + catalog.data['legal_notice']
-            text += '\n\n' + catalog.data['source_notice']
         if sid == 'H04':
             text += '\n\n' + ui['helper_summary'] + '\n' + '\n'.join(state['help_answers'].values())
             text += '\n\n' + ui['helper_notice']
         refs = item.get('references',[]) if sid.startswith('Q') and sid!='Q00' else screen.get('references',[])
-        if refs:
-            text += '\n\n' + '\n'.join(self.reference_text(ref) for ref in refs)
         if sid=='R00' and state['direction']=='restore':
             text += '\n\n' + catalog.data.get('recovery_notice','')
-        if sid.startswith('Q') and sid!='Q00' and item.get('as_of'):
-            text += '\n\nІнформація станом на ' + item['as_of']
         if sid not in ('M01', 'D04') and state['direction']:
             title = self.grant_title(uid) + '\n\n' + title
         markup = self.nav_markup(uid, rows)
-        if sid.startswith('Q') and sid != 'Q00':
+        if refs:
+            links = []
+            for ref in refs:
+                verified = ref.get('verified_links', [])
+                # Existing user catalogs receive verified links only for unchanged normative bindings.
+                if not verified and ref['source_id'] == 'S1':
+                    for part in ref['point'].split(','):
+                        numbers = [int(n) for n in re.findall(r'\d+', part)]
+                        if numbers:
+                            verified += [dict(point=str(n), **catalog.data['point_links'][str(n)])
+                                         for n in range(numbers[0], numbers[-1]+1)
+                                         if str(n) in catalog.data.get('point_links', {})]
+                if verified:
+                    links += [('Джерело · пункт ' + link['point'], link['url']) for link in verified]
+                elif ref['source_id'] not in ('S7', 'S8'):
+                    source = catalog.data['sources'][ref['source_id']]
+                    links.append(('Джерело · ' + source.get('short_title', 'документ'), ref['url']))
+            for label, url in reversed(list(dict.fromkeys(links))):
+                markup['inline_keyboard'].insert(0, [{'text': label, 'url': url}])
+        elif sid.startswith('Q') and sid != 'Q00':
             source_urls = item.get('sources', [item['source_url']] if item.get('source_url') else [])
             for url in source_urls:
                 source_id = next((key for key,source in catalog.data['sources'].items() if source['url']==url),None)
@@ -244,7 +265,8 @@ class DocumentNavigation:
             if uid==self.settings.operator_id:
                 continue
             payload=json.loads(job['payload'])
-            if payload.get('_content_revision')==self.document_content.data['revision']:
+            if (payload.get('_content_revision')==self.document_content.data['revision']
+                    and payload.get('_presentation_revision') == PRESENTATION_REVISION):
                 continue
             callbacks=[button.get('callback_data','') for row in payload.get('reply_markup',{}).get('inline_keyboard',[]) for button in row]
             # Картки й робочі повідомлення звернення мають власний життєвий цикл.

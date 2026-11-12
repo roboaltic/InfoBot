@@ -36,10 +36,11 @@ class Revision02Flows(unittest.TestCase):
         self.click('s:B03')
         text=self.screen()['text']
         self.assertIn('Зарплатна модель також потребує щоквартального документального підтвердження',text)
-        self.assertIn('абзаци 25–34 підпункту 18, підпункти 20 та 21 пункту 1',text)
-        self.assertIn('з 24.06.2022',text)
-        self.assertIn('не охоплює всі жовтневі зміни',text)
-        self.assertTrue(any(b.get('url')=='https://www.kmu.gov.ua/storage/app/uploads/public/6ad/bb7/ba2/6adbb7ba21215946219285.pdf' for b in self.buttons()))
+        self.assertNotIn('абзаци 25–34 підпункту 18, підпункти 20 та 21 пункту 1',text)
+        self.assertNotIn('з 24.06.2022',text)
+        self.assertTrue(any(b.get('url','').endswith('#n869') for b in self.buttons()))
+        refs=self.engine.document_content.screens['B03']['references']
+        self.assertTrue(any('абзаци 25–34' in r['description'] for r in refs))
         self.click('doc_back')
         self.click('s:B04')
         for sid in ('Q02','Q03'):
@@ -53,7 +54,7 @@ class Revision02Flows(unittest.TestCase):
         self.click('s:M02')
         self.click('s:A00')
         self.click('s:A05')
-        self.assertIn('пункт 24 — перенесення розгляду за відсутності фінансування',self.screen()['text'])
+        self.assertIn('пункт 24 передбачає перенесення розгляду',self.screen()['text'])
         self.assertNotIn('пункти 24–25 — подальше оформлення',self.screen()['text'])
         self.click('s:M02')
         self.click('s:Q00')

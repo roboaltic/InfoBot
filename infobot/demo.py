@@ -13,6 +13,9 @@ from .mailer import MailDelivery, MailTemplate
 from .store import Store
 from .telegram import APIError
 from .screens import ScreenCatalog
+from .client_view import ClientMenu
+from .chats import Chats
+from types import SimpleNamespace
 
 
 class Demo(ttk.Frame):
@@ -57,16 +60,33 @@ class Demo(ttk.Frame):
         self.views = {}
         self.inputs = {}
         self.buttons = {}
+        self.client_menu = None
+        self.specialist_chats = None
         for column, (user_id, title) in enumerate(((1, "Клієнт · демо"), (2, "Спеціаліст · демо"))):
             self.body.columnconfigure(column, weight=1, uniform="chat")
             self.body.rowconfigure(0, weight=1)
             panel = ttk.LabelFrame(self.body, text=title, padding=10)
             panel.grid(row=0, column=column, sticky="nsew", padx=(0, 8) if column == 0 else (8, 0))
-            view = ScrolledText(panel, wrap="word", width=35, height=12, font=("Segoe UI", 10),
+            view_parent = panel
+            if user_id == 1:
+                book = ttk.Notebook(panel)
+                book.pack(fill='both', expand=True)
+                self.client_menu = ClientMenu(book)
+                book.add(self.client_menu, text='Меню та відповіді')
+                view_parent = ttk.Frame(book)
+                book.add(view_parent, text='Історія діалогу')
+            else:
+                book = ttk.Notebook(panel)
+                book.pack(fill='both', expand=True)
+                self.specialist_chats = Chats(book, self.local_chat_command)
+                book.add(self.specialist_chats, text='Чати звернень')
+                view_parent = ttk.Frame(book)
+                book.add(view_parent, text='Telegram · симуляція')
+            view = ScrolledText(view_parent, wrap="word", width=35, height=12, font=("Segoe UI", 10),
                                 bg="#ffffff", relief="flat", padx=8, pady=8, state="disabled")
             view.pack(fill="both", expand=True)
             self.views[user_id] = view
-            buttons = ttk.Frame(panel)
+            buttons = ttk.Frame(self.client_menu.buttons if user_id == 1 else panel)
             buttons.pack(fill="x", pady=8)
             self.buttons[user_id] = buttons
             entry = ttk.Entry(panel)
@@ -113,6 +133,19 @@ class Demo(ttk.Frame):
                 break
             self.telegram_delivery.sent_at.clear()
             self.telegram_delivery.flush()
+        if self.specialist_chats:
+            self.specialist_chats.snapshot(self.store.chat_snapshot())
+
+    def local_chat_command(self, action):
+        from .runner import Runner
+        try:
+            Runner.chat_control(SimpleNamespace(settings=self.engine.settings), self.engine, self.store,
+                                {**action, 'operator_id': self.engine.settings.operator_id})
+        except ValueError as error:
+            messagebox.showerror('Чат звернення', str(error))
+        if action['ticket_id'] in self.specialist_chats.tabs:
+            self.specialist_chats.tabs[action['ticket_id']]['awaiting'] = False
+        self.drain()
 
     def call(self, method: str, payload: dict):
         if method == "answerCallbackQuery":
@@ -132,6 +165,8 @@ class Demo(ttk.Frame):
             view.configure(state="disabled")
             return True
         text = "Бот: " + payload["text"]
+        if user_id == 1 and 'reply_markup' in payload and self.client_menu:
+            self.client_menu.show(payload['text'])
         if method == "editMessageText":
             message_id = payload["message_id"]
             tag = f"message_{message_id}"

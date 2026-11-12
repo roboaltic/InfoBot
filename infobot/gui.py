@@ -11,6 +11,7 @@ from . import __version__
 from .faq import FAQCatalog
 from .mailer import MailTemplate
 from .runner import Runner
+from .chats import Chats
 from .settings import ROOT, MailSettings, Settings, load_secret, load_token, save_secret, save_token
 
 
@@ -49,6 +50,7 @@ class App:
         ttk.Label(header, text='InfoBot', style='Title.TLabel').pack(side='left')
         ttk.Label(header, text='Звернення · обов’язкові контакти · електронна пошта', font=('Segoe UI', 11)).pack(side='left', padx=18)
         notebook = ttk.Notebook(root)
+        self.notebook = notebook
         notebook.pack(fill='both', expand=True, padx=18, pady=(0, 18))
         launch = ttk.Frame(notebook, padding=18)
         notebook.add(launch, text='  Запуск  ')
@@ -56,6 +58,10 @@ class App:
         notebook.add(mail_tab, text='  Електронна пошта  ')
         connections_tab = ttk.Frame(notebook, padding=18)
         notebook.add(connections_tab, text='  Підключення  ')
+        self.chats = Chats(notebook, self.chat_command)
+        notebook.add(self.chats, text='  Чати  ')
+        notebook.bind('<<NotebookTabChanged>>', lambda event: self.chats.show_list()
+                      if notebook.select() != str(self.chats) else None)
         ttk.Label(connections_tab, text='Користувачі, які звернулися до бота. Час першого підключення за місцевим часом комп’ютера.',
                   wraplength=850).pack(anchor='w', pady=(0, 12))
         table_frame = ttk.Frame(connections_tab)
@@ -249,6 +255,17 @@ class App:
         if self.runner and self.runner.thread.is_alive():
             self.runner.controls.put(action)
 
+    def chat_command(self, action):
+        if self.runner and self.runner.thread.is_alive():
+            self.control({**action, 'operator_id': self.runner.settings.operator_id})
+        elif action['action'] not in ('read', 'draft'):
+            if action['ticket_id'] in self.chats.tabs:
+                tab = self.chats.tabs[action['ticket_id']]
+                tab['awaiting'] = tab['pending'] = False
+                tab['send'].configure(state='normal')
+                tab['status'].set('Бот зупинений. Текст залишено в полі введення.')
+            messagebox.showerror('Чати', 'Бот зупинений. Запустіть його для роботи з чатами.')
+
     def copy_claim(self):
         if self.claim.get():
             self.root.clipboard_clear()
@@ -295,6 +312,13 @@ class App:
                 self.log('Спеціаліста підключено.')
             elif kind == 'connections':
                 self.show_connections(value)
+            elif kind == 'chats':
+                self.chats.snapshot(value)
+                self.notebook.tab(self.chats, text='  ' + self.chats.label.get() + '  ')
+            elif kind == 'chat_error':
+                messagebox.showerror('Чат звернення', value)
+            elif kind == 'chat_ack' and value in self.chats.tabs:
+                self.chats.tabs[value]['awaiting'] = False
             elif kind == 'counts':
                 self.counts.set(f'Відкритих звернень: {value[0]}  |  У черзі Telegram: {value[1]}')
             elif kind == 'mail_counts':

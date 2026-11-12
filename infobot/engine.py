@@ -19,7 +19,7 @@ from .faq import FAQCatalog, load_faq
 from .faq_dialog import FAQDialogs
 from .navigation import ClientNavigation, NavigationContent
 from .support import ClientSupport
-from .screens import DocumentNavigation
+from .screens import DocumentNavigation, PRESENTATION_REVISION
 
 
 def text_size(text: str) -> int:
@@ -126,7 +126,7 @@ class Engine(DocumentNavigation, ClientSupport, ClientNavigation, FAQDialogs):
             return
         self.say(user_id, notice + 'Панель спеціаліста\n\nОберіть звернення для відповіді або змініть каталог FAQ. '
                  'Налаштування пошти, доступу та резервні копії — у програмі на комп’ютері.',
-                 keyboard([[('Відкриті звернення', 'tickets:0')], [('Редагувати FAQ', 'faqmanage')],
+                 keyboard([[(f"Чати · {sum(t['unread'] for t in self.store.chat_snapshot())}", 'tickets:0')], [('Редагувати FAQ', 'faqmanage')],
                            [('Команди спеціаліста', 'commands')], [('Головне меню', 'menu')]]))
 
     def say(self, user_id: int, text: str, markup: dict | None = None, ticket_id: int | None = None,
@@ -139,6 +139,7 @@ class Engine(DocumentNavigation, ClientSupport, ClientNavigation, FAQDialogs):
         payload = {'chat_id': user_id, 'text': text}
         if self.document_content and not notification:
             payload['_content_revision']=self.document_content.data['revision']
+            payload['_presentation_revision'] = PRESENTATION_REVISION
         if fresh_menu and not notification:
             # Durable delivery metadata; removed before calling Telegram.
             payload['_fresh_menu'] = True
@@ -547,10 +548,11 @@ class Engine(DocumentNavigation, ClientSupport, ClientNavigation, FAQDialogs):
             return False
         if self.document_content:
             self.accept_ticket(user_id, ticket, show_card=False)
-        self.store.add_message(ticket_id, 'operator', text)
-        self.store.track(ticket_id, user_id, message['message_id'], message.get('date'))
-        self.say(ticket['user_id'], f'Відповідь спеціаліста · звернення №{ticket_id}\n\n{text}',
-                 keyboard([[('Моє звернення', f'ticket_mine:{ticket_id}')]]), ticket_id, notification=True)
+        if not self.store.queue_reply(ticket_id, user_id, text):
+            self.say(user_id, 'Попередня відповідь очікує доставки або перевірки. Текст збережено в чаті.', ticket_id=ticket_id)
+            return False
+        if message.get('message_id'):
+            self.store.track(ticket_id, user_id, message['message_id'], message.get('date'))
         self.say(user_id, f'Відповідь для звернення №{ticket_id} поставлено в чергу надсилання.', self.menu(user_id), ticket_id)
         return True
 
@@ -567,6 +569,8 @@ class Engine(DocumentNavigation, ClientSupport, ClientNavigation, FAQDialogs):
             self.card(user_id, self.store.ticket(ticket['id']))
 
     def card(self, user_id: int, ticket):
+        if user_id == self.settings.operator_id:
+            self.store.read_chat(ticket['id'])
         details = [f"Звернення №{ticket['id']} · відкрите", self.contact_summary(ticket), self.context_summary(json.loads(ticket['grant_context']))]
         pending, sent, blocked = self.store.mail_counts(ticket['id'])
         if pending or sent or blocked:
@@ -581,7 +585,9 @@ class Engine(DocumentNavigation, ClientSupport, ClientNavigation, FAQDialogs):
             if self.document_content and not ticket['accepted_by']:
                 rows.append([(self.document_content.data['ui']['accept'], f"accept:{ticket['id']}")])
             rows.append([('Відповісти', f"reply:{ticket['id']}")])
-        rows.extend([[('Закрити звернення', f"confirm:{ticket['id']}")], [('До меню', 'menu')]])
+        rows.extend([[('Завершити звернення', f"confirm:{ticket['id']}")],
+                     [('До списку чатів', 'tickets:0')]] if user_id == self.settings.operator_id else
+                    [[('Закрити звернення', f"confirm:{ticket['id']}")], [('До меню', 'menu')]])
         self.say(user_id, '\n\n'.join(details), keyboard(rows), ticket['id'])
 
     def list_tickets(self, user_id: int, page: int = 0):
@@ -589,7 +595,15 @@ class Engine(DocumentNavigation, ClientSupport, ClientNavigation, FAQDialogs):
             return
         count = self.store.counts()[0]
         page = min(max(page, 0), max(0, (count - 1) // 8))
-        rows = [[(f"Звернення №{ticket['id']}", f"ticket:{ticket['id']}")] for ticket in self.store.tickets(page)]
+        snapshot = {t['id']: t for t in self.store.chat_snapshot()}
+        rows = []
+        for ticket in self.store.tickets(page):
+            chat = snapshot[ticket['id']]
+            last = chat['history'][-1]['body'] if chat['history'] else ''
+            label = (f"№{ticket['id']} · {ticket['client_full_name'] or ticket['client_name']} · "
+                     + ('У роботі' if ticket['accepted_by'] else 'Нове')
+                     + f" · {chat['unread']} · " + ' '.join(last.split())[:35])
+            rows.append([(shorten(label, 64), f"ticket:{ticket['id']}")])
         navigation = []
         if page:
             navigation.append(('Назад', f'tickets:{page - 1}'))

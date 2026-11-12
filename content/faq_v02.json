@@ -50,7 +50,41 @@
         "source_id": "S1",
         "point": "5, 10, 29, 32",
         "description": "Пункт 5 — повторний грант та врахування попереднього; пункт 29 — підтвердження виконання договору; пункти 10 і 32 — повторне подання після відмови або анулювання. Пункт 29 — зняття з моніторингу після повернення через невиконання обов’язкових умов без права повторного гранту.",
-        "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+        "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+        "verified_links": [
+          {
+            "point": "5",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n643",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          },
+          {
+            "point": "10",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n675",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          },
+          {
+            "point": "29",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n913",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          },
+          {
+            "point": "32",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n940",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          }
+        ]
       },
       {
         "source_id": "S7",
@@ -84,7 +118,57 @@
         "source_id": "S1",
         "point": "27–29, 33, 35, 38",
         "description": "Пункти 27–28 — невиконання умов; пункт 33 — розірвання постачання; пункт 35 — наслідки моніторингу; пункт 38 — невикористані кошти. Пункт 29 — зняття з моніторингу після повернення через невиконання обов’язкових умов без права повторного гранту.",
-        "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+        "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+        "verified_links": [
+          {
+            "point": "27",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n895",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          },
+          {
+            "point": "28",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n904",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          },
+          {
+            "point": "29",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n913",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          },
+          {
+            "point": "33",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n944",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          },
+          {
+            "point": "35",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n963",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          },
+          {
+            "point": "38",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n981",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          }
+        ]
       },
       {
         "source_id": "S7",
@@ -118,7 +202,25 @@
         "source_id": "S1",
         "point": "33, 39",
         "description": "Пункт 39 — обґрунтування заміни постачальника; пункт 33 — повернення коштів на рахунок отримувача.",
-        "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+        "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+        "verified_links": [
+          {
+            "point": "33",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n944",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          },
+          {
+            "point": "39",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n986",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          }
+        ]
       },
       {
         "source_id": "S7",
@@ -152,7 +254,25 @@
         "source_id": "S1",
         "point": "30–31",
         "description": "Пункти 30–31 — продовження строків у зв’язку із судовим спором із постачальником та підтвердні документи.",
-        "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+        "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+        "verified_links": [
+          {
+            "point": "30",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n923",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          },
+          {
+            "point": "31",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n939",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          }
+        ]
       },
       {
         "source_id": "S7",
@@ -186,7 +306,17 @@
         "source_id": "S1",
         "point": "5",
         "description": "Пункт 5 — пошкодження виробництва після гранту, перевищення втрат над грантом, витяг із ЄРДР та акт оцінки втрат.",
-        "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+        "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+        "verified_links": [
+          {
+            "point": "5",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n643",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          }
+        ]
       },
       {
         "source_id": "S7",
@@ -220,7 +350,17 @@
         "source_id": "S1",
         "point": "10",
         "description": "Пункт 10 — блокування поданої заяви та бізнес-плану й повторне подання.",
-        "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+        "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+        "verified_links": [
+          {
+            "point": "10",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n675",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          }
+        ]
       },
       {
         "source_id": "S7",
@@ -254,7 +394,33 @@
         "source_id": "S1",
         "point": "23–25",
         "description": "Пункт 23 — інформування банком; пункт 24 — перенесення розгляду за відсутності фінансування; пункт 25 — оновлення статусу в Дії.",
-        "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print"
+        "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF/print",
+        "verified_links": [
+          {
+            "point": "23",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n847",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          },
+          {
+            "point": "24",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n866",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          },
+          {
+            "point": "25",
+            "url": "https://zakon.rada.gov.ua/laws/show/739-2022-%D0%BF#n868",
+            "checked_at": "2026-11-12",
+            "document_revision": "2026-10-27",
+            "verification": "official_html",
+            "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
+          }
+        ]
       },
       {
         "source_id": "S7",

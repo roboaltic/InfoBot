@@ -21,6 +21,8 @@ class Delivery:
     def __init__(self, store: Store, api, emit):
         self.store, self.api, self.emit = store, api, emit
         self.sent_at: OrderedDict[int, float] = OrderedDict()
+        with self.store.db:
+            self.store.db.execute("UPDATE specialist_replies SET status='unknown',error='Перервано під час відправки. Перевірте доставку.' WHERE status='sending'")
 
     def render_menu(self, payload: dict, *, fresh_menu=False):
         chat_id = payload["chat_id"]
@@ -46,10 +48,32 @@ class Delivery:
             payload = json.loads(job["payload"])
             fresh_menu = payload.pop('_fresh_menu', False)
             payload.pop('_content_revision',None)
+            payload.pop('_presentation_revision', None)
+            reply_id = payload.pop('_reply_id', None)
+            if reply_id:
+                reply = self.store.db.execute('SELECT * FROM specialist_replies WHERE id=?', (reply_id,)).fetchone()
+                if not reply or reply['status'] != 'pending':
+                    with self.store.db:
+                        self.store.complete(job['id'])
+                    continue
+                # Commit before HTTP: after a crash this must require manual reconciliation.
+                with self.store.db:
+                    self.store.db.execute("UPDATE specialist_replies SET status='sending' WHERE id=?", (reply_id,))
             old_menu = self.store.menu_message(destination) if job["is_menu"] else None
             try:
                 result = self.render_menu(payload, fresh_menu=fresh_menu) if job["is_menu"] else self.api.call(job["method"], payload)
             except APIError as error:
+                if reply_id:
+                    state = 'failed' if error.code in (400, 403, 429) else 'unknown'
+                    with self.store.db:
+                        self.store.db.execute('UPDATE specialist_replies SET status=?,error=? WHERE id=?',
+                                              (state, 'Відправка не вдалася.' if state == 'failed' else
+                                               'Результат невідомий. Перевірте доставку перед повтором.', reply_id))
+                        self.store.complete(job['id'])
+                        self.store.enqueue('sendMessage', {'chat_id': reply['operator_id'],
+                            'text': f"Звернення №{reply['ticket_id']}: " + ('Відправка не вдалася. Текст збережено.' if state == 'failed' else
+                            'Результат відправки невідомий. Автоматичного повтору не буде. Текст збережено.')}, reply['ticket_id'])
+                    continue
                 if error.code in (401, 409):
                     raise
                 with self.store.db:
@@ -67,6 +91,13 @@ class Delivery:
                             self.emit("log", f"Не вдалося доставити повідомлення{ticket} у чат {destination}: {error}")
                 continue
             with self.store.db:
+                if reply_id:
+                    self.store.db.execute("UPDATE specialist_replies SET status='sent',error='' WHERE id=?", (reply_id,))
+                    self.store.add_message(reply['ticket_id'], 'operator', reply['body'])
+                    self.store.db.execute("UPDATE specialist_chats SET draft='' WHERE ticket_id=? AND draft=?",
+                                          (reply['ticket_id'], reply['body']))
+                    self.store.enqueue('sendMessage', {'chat_id': reply['operator_id'], 'text':
+                        'Повідомлення надіслано клієнту. Подальші відповіді клієнта надходитимуть у цей чат звернення.'}, reply['ticket_id'])
                 if job["is_menu"]:
                     self.store.record_menu_message(destination, result["message_id"],
                                                    result.get("date", time.time()), job["ticket_id"])
@@ -162,6 +193,7 @@ class Runner:
                     try:
                         delivery.flush()
                         self.emit("connections", store.connections())
+                        self.emit('chats', store.chat_snapshot())
                         self.emit("counts", store.counts())
                         self.emit("mail_counts", store.mail_counts())
                         timeout = 1 if store.counts()[1] else 8
@@ -190,6 +222,8 @@ class Runner:
                 self.mail_worker.stop.set()
                 self.mail_worker.thread.join()
             if store:
+                if 'engine' in locals():
+                    self.handle_controls(engine, store)
                 store.close()
             self.token = ""
             self.emit("stopped", None)
@@ -197,6 +231,14 @@ class Runner:
     def handle_controls(self, engine: Engine, store: Store):
         while not self.controls.empty():
             action = self.controls.get_nowait()
+            if isinstance(action, dict):
+                try:
+                    self.chat_control(engine, store, action)
+                except (ValueError, RuntimeError) as error:
+                    self.emit('chat_error', str(error))
+                self.emit('chat_ack', action['ticket_id'])
+                self.emit('chats', store.chat_snapshot())
+                continue
             if action == "pairing":
                 self.emit("pairing", engine.pairing.issue())
             elif action == "backup":
@@ -215,3 +257,27 @@ class Runner:
                     self.emit("log", "Заплановано повторне надсилання листів із черги")
                 else:
                     self.emit("log", "Для відновлення поштового потоку перевірте налаштування та перезапустіть бота")
+
+    def chat_control(self, engine, store, action):
+        if not self.settings.operator_id or action.get('operator_id') != self.settings.operator_id:
+            raise ValueError('Доступ лише для підключеного спеціаліста.')
+        ticket_id = action['ticket_id']
+        ticket = store.ticket(ticket_id)
+        if not ticket:
+            raise ValueError('Звернення вже завершено.')
+        with store.db:
+            kind = action['action']
+            if kind == 'draft':
+                store.save_chat_draft(ticket_id, action['text'])
+            elif kind == 'read':
+                store.read_chat(ticket_id, action.get('read_id'))
+            elif kind == 'send':
+                engine.reply(self.settings.operator_id, ticket_id, action['text'], {})
+            elif kind == 'retry':
+                row = store.db.execute('SELECT * FROM specialist_replies WHERE id=? AND ticket_id=?',
+                                       (action['reply_id'], ticket_id)).fetchone()
+                if row and row['status'] in ('failed', 'unknown'):
+                    store.db.execute("UPDATE specialist_replies SET status='cancelled' WHERE id=?", (row['id'],))
+                    engine.reply(self.settings.operator_id, ticket_id, row['body'], {})
+            elif kind == 'close':
+                engine.close_ticket(ticket)

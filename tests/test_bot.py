@@ -147,7 +147,8 @@ class FlowTests(unittest.TestCase):
         self.click(900, "faq")
         self.drain(api)
         sent = [p for method, p in api.calls if method == "sendMessage"]
-        self.assertEqual([p["chat_id"] for p in sent], [900, 100])
+        self.assertEqual([p["chat_id"] for p in sent], [900, 100, 900])
+        self.assertIn('Повідомлення надіслано клієнту.', sent[-1]['text'])
         self.assertIn("Вигадане запитання", sent[0]["text"])
         self.assertIn("Тестова відповідь", sent[1]["text"])
         self.assertIn(("deleteMessage", {"chat_id": 900, "message_id": reply["message"]["message_id"]}), api.calls)
@@ -186,9 +187,10 @@ class FlowTests(unittest.TestCase):
     def test_ticket_reply_and_close_purges_content(self):
         ticket_id = self.create()
         self.message(900, f"/reply {ticket_id} Тестова відповідь")
-        self.assertEqual(len(self.store.history(ticket_id)), 2)
+        self.assertEqual(len(self.store.history(ticket_id)), 1)
         self.assertTrue(any("Тестова відповідь" in p["text"] for p in self.payloads(100)))
         self.drain()
+        self.assertEqual(len(self.store.history(ticket_id)), 2)
         self.assertGreater(self.store.db.execute("SELECT count(*) FROM telegram_refs").fetchone()[0], 1)
         self.click(900, f"close:{ticket_id}")
         self.assertEqual(self.store.counts()[0], 0)

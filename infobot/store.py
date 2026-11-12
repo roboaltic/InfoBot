@@ -128,6 +128,52 @@ class Store:
             self.db.execute("CREATE UNIQUE INDEX IF NOT EXISTS tickets_submission ON tickets(submission_id) WHERE submission_id<>''")
             self.db.execute('CREATE TABLE IF NOT EXISTS static_menu_history (chat_id INTEGER NOT NULL, message_id INTEGER NOT NULL, PRIMARY KEY(chat_id,message_id))')
             self.db.execute('INSERT OR IGNORE INTO static_menu_history SELECT chat_id,message_id FROM menu_messages')
+            self.db.executescript('''
+                CREATE TABLE IF NOT EXISTS specialist_chats (
+                    ticket_id INTEGER PRIMARY KEY REFERENCES tickets(id) ON DELETE CASCADE,
+                    draft TEXT NOT NULL DEFAULT '', read_id INTEGER NOT NULL DEFAULT 0);
+                CREATE TABLE IF NOT EXISTS specialist_replies (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ticket_id INTEGER NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
+                    operator_id INTEGER NOT NULL, body TEXT NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'pending', error TEXT NOT NULL DEFAULT '');
+            ''')
+
+    def save_chat_draft(self, ticket_id, text):
+        self.db.execute('INSERT INTO specialist_chats(ticket_id,draft) VALUES (?,?) '
+                        'ON CONFLICT(ticket_id) DO UPDATE SET draft=excluded.draft', (ticket_id, text))
+
+    def read_chat(self, ticket_id, read_id=None):
+        self.db.execute('INSERT OR IGNORE INTO specialist_chats(ticket_id) VALUES (?)', (ticket_id,))
+        if read_id is None:
+            read_id = self.db.execute('SELECT COALESCE(max(id),0) FROM messages WHERE ticket_id=?',
+                                      (ticket_id,)).fetchone()[0]
+        self.db.execute('UPDATE specialist_chats SET read_id=max(read_id,?) WHERE ticket_id=?', (read_id, ticket_id))
+
+    def chat_snapshot(self):
+        rows = self.db.execute('''SELECT t.*, COALESCE(c.draft,'') AS draft,
+            (SELECT count(*) FROM messages m WHERE m.ticket_id=t.id AND m.direction='client'
+             AND m.id>COALESCE(c.read_id,0)) AS unread
+            FROM tickets t LEFT JOIN specialist_chats c ON c.ticket_id=t.id ORDER BY t.id DESC''')
+        return [{**dict(row), 'history': [dict(m) for m in self.history(row['id'], -1)],
+                 'replies': [dict(r) for r in self.db.execute(
+                     'SELECT * FROM specialist_replies WHERE ticket_id=? ORDER BY id', (row['id'],))]}
+                for row in rows]
+
+    def queue_reply(self, ticket_id, operator_id, text):
+        if self.db.execute("SELECT 1 FROM specialist_replies WHERE ticket_id=? AND status IN ('pending','sending','unknown')",
+                           (ticket_id,)).fetchone():
+            return False
+        ticket = self.ticket(ticket_id)
+        if not ticket:
+            return False
+        self.save_chat_draft(ticket_id, text)
+        cursor = self.db.execute('INSERT INTO specialist_replies(ticket_id,operator_id,body) VALUES (?,?,?)',
+                                 (ticket_id, operator_id, text))
+        self.enqueue('sendMessage', {'chat_id': ticket['user_id'],
+                     'text': f'Відповідь спеціаліста · звернення №{ticket_id}\n\n{text}',
+                     '_reply_id': cursor.lastrowid}, ticket_id)
+        return True
 
     def navigation(self, user_id: int) -> dict:
         row = self.db.execute('SELECT state FROM client_navigation WHERE user_id=?', (user_id,)).fetchone()

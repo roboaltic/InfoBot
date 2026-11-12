@@ -24,7 +24,7 @@ def main():
     parser._positionals.title = 'Позиційні аргументи'
     parser._optionals.title = 'Параметри'
     parser.add_argument('-h', '--help', action='help', help='Показати цю довідку та вийти')
-    parser.add_argument("--demo", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--demo", action="store_true", help="Відкрити автономний інтерфейс із підробленим Telegram без токена та мережі")
     parser.add_argument("--console", action="store_true", help="Запустити без графічного вікна")
     parser.add_argument("--setup", action="store_true", help="Заповнити форму в терміналі та запустити бота без графічного вікна")
     parser.add_argument("--self-test", action="store_true", help="Запустити автономні тести; Telegram і SMTP не використовуються")
@@ -74,6 +74,15 @@ def main():
             runner.thread.join()
         return 1 if failed else 0
     try:
+        if args.demo:
+            import tkinter as tk
+            from infobot.demo import Demo
+            root = tk.Tk()
+            root.title('InfoBot · автономна перевірка')
+            root.geometry('1100x850')
+            Demo(root).pack(fill='both', expand=True)
+            root.mainloop()
+            return 0
         from infobot.gui import launch
         launch(args.demo)
     except ImportError:
