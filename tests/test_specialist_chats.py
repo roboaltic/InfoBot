@@ -169,7 +169,7 @@ class VerifiedSourcesTests(unittest.TestCase):
         catalog=ScreenCatalog()
         bodies = {sid: screen.get('body', '') for sid, screen in catalog.screens.items()}
         self.assertEqual(hashlib.sha256(json.dumps(bodies, ensure_ascii=False, sort_keys=True).encode()).hexdigest(),
-                         '6e3d65cfd8f6c8da2faf4d7edde0c95f93a105e388b0e9e382ac763f45f7fd2f')
+                         '02de72b739b8974f8bf77e2d40f96e177c318d7810297edbda2590093f7fd85c')
         for sid,screen in catalog.screens.items():
             for ref in screen.get('references',[]):
                 if ref['source_id']=='S1':
@@ -211,14 +211,16 @@ class SourcePresentationFlows(unittest.TestCase):
         self.restart()
         self.drain()
         self.assertNotIn('Старий довгий технічний підпис',self.screen()['text'])
+        self.click('doc_sources:s:F02')
         self.assertTrue(any(b.get('url','').endswith('#n630') for b in self.buttons()))
 
     def test_multiple_norms_have_separate_short_sources(self):
         self.select()
         self.click('s:B00')
         self.click('s:B02')
+        self.click('doc_sources:s:B02')
         links = {b['text']:b['url'] for b in self.buttons() if 'url' in b}
-        self.assertTrue(links['Джерело · пункт 6'].endswith('#n650'))
-        self.assertTrue(links['Джерело · пункт 33'].endswith('#n944'))
-        self.assertTrue(links['Джерело · пункт 39'].endswith('#n986'))
+        self.assertTrue(links['Порядок надання грантів № 739 · п. 6'].endswith('#n650'))
+        self.assertTrue(links['Порядок надання грантів № 739 · п. 33'].endswith('#n944'))
+        self.assertTrue(links['Порядок надання грантів № 739 · п. 39'].endswith('#n986'))
         self.assertNotIn('24.06.2022', self.screen()['text'])

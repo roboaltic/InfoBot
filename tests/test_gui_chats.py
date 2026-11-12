@@ -130,3 +130,28 @@ class GraphicalChatsTests(unittest.TestCase):
         self.root.update()
         self.assertIsNotNone(demo.specialist_chats)
         self.assertTrue(demo.client_menu.text.cget('text'))
+
+    def test_demo_sources_screen_and_return_use_shared_menu(self):
+        self.chats.pack_forget()
+        demo = Demo(self.root)
+        demo.pack(fill='both', expand=True)
+        self.addCleanup(demo.destroy)
+        self.root.update()
+        for route in ('s:D01', 's:R00', 's:R50', 's:M02', 's:F00', 's:F02'):
+            demo.click(1, f"n:{demo.engine.nav_state(1)['revision']}:{route}")
+            self.root.update()
+        def visible_buttons():
+            return [button for row in demo.buttons[1].winfo_children() for button in row.winfo_children()]
+        buttons = visible_buttons()
+        self.assertEqual(sum(b.cget('text') == 'Джерела' for b in buttons), 1)
+        before = demo.client_menu.text.cget('text')
+        menu_id = demo.store.menu_message(1)['message_id']
+        next(b for b in buttons if b.cget('text') == 'Джерела').invoke()
+        self.root.update()
+        self.assertTrue(demo.client_menu.text.cget('text').startswith('Документи до цієї відповіді'))
+        self.assertEqual(demo.store.menu_message(1)['message_id'], menu_id)
+        buttons = visible_buttons()
+        self.assertIn('Порядок надання грантів № 739 · п. 4', [b.cget('text') for b in buttons])
+        next(b for b in buttons if b.cget('text') == 'Назад до відповіді').invoke()
+        self.root.update()
+        self.assertEqual(demo.client_menu.text.cget('text'), before)

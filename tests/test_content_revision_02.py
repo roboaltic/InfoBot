@@ -38,7 +38,9 @@ class Revision02Flows(unittest.TestCase):
         self.assertIn('Зарплатна модель також потребує щоквартального документального підтвердження',text)
         self.assertNotIn('абзаци 25–34 підпункту 18, підпункти 20 та 21 пункту 1',text)
         self.assertNotIn('з 24.06.2022',text)
+        self.click('doc_sources:s:B03')
         self.assertTrue(any(b.get('url','').endswith('#n869') for b in self.buttons()))
+        self.click('doc_sources_back')
         refs=self.engine.document_content.screens['B03']['references']
         self.assertTrue(any('абзаци 25–34' in r['description'] for r in refs))
         self.click('doc_back')

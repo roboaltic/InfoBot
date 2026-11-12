@@ -6,11 +6,12 @@ import re
 import time
 from pathlib import Path
 from string import Formatter
+from urllib.parse import urlsplit
 
 from .faq import size, validate_source, validate_items
 from .settings import ROOT
 
-PRESENTATION_REVISION = 'interface-2026-11-12'
+PRESENTATION_REVISION = 'sources-view-2026-11-12'
 
 DIRECTIONS = {'D01': 'create', 'D02': 'develop', 'D03': 'restore'}
 RATIOS = {'R50': '50_50', 'R70': '70_30', 'R80': '80_20'}
@@ -101,10 +102,49 @@ class ScreenCatalog:
             raise ValueError('Не вистачає підстановок екрана ' + sid)
         return body.format_map(values)
 
+    def answer_sources(self, sid=None, item=None):
+        """Resolve one answer from catalog bindings; never calculate HTML anchors."""
+        screen = self.screens.get(sid, {})
+        if item is None and not screen.get('sources_enabled'):
+            return []
+        record = item if item is not None else screen
+        sources = self.data['sources']
+        links = []
+        for ref in record.get('references', []):
+            source = sources.get(ref.get('source_id'))
+            if not source or (source.get('client_role') == 'amendment_metadata' and not ref.get('client_visible')):
+                continue
+            title = source.get('client_title', source['short_title'])
+            if ref['source_id'] == 'S1' and ref.get('point'):
+                for part in ref['point'].split(','):
+                    numbers = [int(n) for n in re.findall(r'\d+', part)]
+                    if not numbers:
+                        continue
+                    for point in range(numbers[0], numbers[-1] + 1):
+                        verified = self.data.get('point_links', {}).get(str(point))
+                        if verified:
+                            links.append((title + ' · п. ' + str(point), verified['url']))
+            else:
+                links.append((title, ref['url']))
+        if not record.get('references'):
+            urls = (record.get('sources', [record['source_url']] if record.get('source_url') else [])
+                    if item is not None else [sources[key]['url'] for key in screen.get('source_ids', [])])
+            for url in urls:
+                if not url:
+                    continue
+                source = next((s for s in sources.values() if s['url'] == url), None)
+                if source and source.get('client_role') == 'amendment_metadata':
+                    continue
+                title = (source.get('client_title', source['short_title']) if source else
+                         record.get('source_title') or urlsplit(url).hostname)
+                links.append((title, url))
+        # One URL is one button, even if multiple bindings refer to it.
+        return list({url: (title, url) for title, url in links}.values())
+
 
 class DocumentNavigation:
     def document_route(self, uid, route):
-        if route and route.startswith(('legacy_faq:', 'legacy_answer:')):
+        if route and route.startswith(('legacy_faq:', 'legacy_answer:', 'sources:')):
             return route
         if route and route.startswith('s:'):
             return route[2:]
@@ -131,6 +171,8 @@ class DocumentNavigation:
                 ('*' in item.get('ratios', ['*']) or state['ratio'] in item['ratios'])]
 
     def document_render(self, uid, sid, *, fresh_menu=False, remember=True):
+        if sid.startswith('sources:'):
+            return self.document_sources(uid, sid[len('sources:'):], fresh_menu=fresh_menu)
         if sid.startswith('legacy_faq:'):
             return self.show_faq(uid,sid.partition(':')[2])
         if sid.startswith('legacy_answer:'):
@@ -144,6 +186,8 @@ class DocumentNavigation:
         if sid == 'M02' and not state['confirmed']:
             sid = 'R00' if state['direction'] else 'M01'
         old = self.document_route(uid, state['screen'])
+        if old.startswith('sources:'):
+            old = self.document_route(uid, old[len('sources:'):])
         if remember and old != sid:
             state['history'] = (state['history'] + [old])[-32:]
         state.update(screen='s:' + sid, updated_at=time.time(), helper_input=sid in ('H01','H02','H03'))
@@ -212,50 +256,50 @@ class DocumentNavigation:
         if sid == 'H04':
             text += '\n\n' + ui['helper_summary'] + '\n' + '\n'.join(state['help_answers'].values())
             text += '\n\n' + ui['helper_notice']
-        refs = item.get('references',[]) if sid.startswith('Q') and sid!='Q00' else screen.get('references',[])
         if sid=='R00' and state['direction']=='restore':
             text += '\n\n' + catalog.data.get('recovery_notice','')
         if sid not in ('M01', 'D04') and state['direction']:
             title = self.grant_title(uid) + '\n\n' + title
-        markup = self.nav_markup(uid, rows)
-        if refs:
-            links = []
-            for ref in refs:
-                verified = ref.get('verified_links', [])
-                # Existing user catalogs receive verified links only for unchanged normative bindings.
-                if not verified and ref['source_id'] == 'S1':
-                    for part in ref['point'].split(','):
-                        numbers = [int(n) for n in re.findall(r'\d+', part)]
-                        if numbers:
-                            verified += [dict(point=str(n), **catalog.data['point_links'][str(n)])
-                                         for n in range(numbers[0], numbers[-1]+1)
-                                         if str(n) in catalog.data.get('point_links', {})]
-                if verified:
-                    links += [('Джерело · пункт ' + link['point'], link['url']) for link in verified]
-                elif ref['source_id'] not in ('S7', 'S8'):
-                    source = catalog.data['sources'][ref['source_id']]
-                    links.append(('Джерело · ' + source.get('short_title', 'документ'), ref['url']))
-            for label, url in reversed(list(dict.fromkeys(links))):
-                markup['inline_keyboard'].insert(0, [{'text': label, 'url': url}])
-        elif sid.startswith('Q') and sid != 'Q00':
-            source_urls = item.get('sources', [item['source_url']] if item.get('source_url') else [])
-            for url in source_urls:
-                source_id = next((key for key,source in catalog.data['sources'].items() if source['url']==url),None)
-                label = next((button['label'] for button in screen['buttons'] if button['kind']=='source' and button['target']==source_id), ui['source'])
-                markup['inline_keyboard'].insert(0, [{'text': label, 'url': url}])
-        else:
-            for source_id in reversed(screen['source_ids']):
-                source = catalog.data['sources'][source_id]
-                if source['url']:
-                    label = next((button['label'] for button in screen['buttons'] if button['kind']=='source' and button['target']==source_id), source.get('short_title',source['title']))
-                    markup['inline_keyboard'].insert(0, [{'text': label, 'url': source['url']}])
+        item = item if sid.startswith('Q') and sid != 'Q00' else None
+        links = catalog.answer_sources(sid, item)
         body = title + '\n\n' + text
+        body, markup = self.answer_source_button(uid, 's:' + sid, body, rows, links)
         self.say(uid, body, markup, fresh_menu=fresh_menu)
 
-    def reference_text(self, ref):
-        source = self.document_content.data['sources'][ref['source_id']]
-        title = source.get('citation_title',source.get('short_title',source['title']))
-        return title+(' — пункт '+ref['point'] if ref.get('point') else '')+': '+ref['description']
+    def answer_source_button(self, uid, origin, text, rows, links):
+        view = self.document_content.data['sources_view']
+        # Re-render from content, with one footer even if already present in authored text.
+        text = text.replace(view['notice'], '').rstrip()
+        if links:
+            text += '\n\n' + view['notice']
+            rows = [[(view['button'], 'doc_sources:' + origin)]] + rows
+        return text, self.nav_markup(uid, rows)
+
+    def sources_for_answer(self, uid, origin):
+        catalog = self.document_content
+        if origin.startswith('legacy_answer:'):
+            item = self.faq_catalog.get(origin.partition(':')[2])
+            return catalog.answer_sources(item=item) if item and item in self.visible_legacy_faq(uid) else []
+        sid = origin[2:] if origin.startswith('s:') else ''
+        screen = catalog.screens.get(sid, {})
+        if not screen.get('sources_enabled'):
+            return []
+        if screen.get('faq_id'):
+            item = self.faq_catalog.get(screen['faq_id'])
+            return catalog.answer_sources(sid, item) if item and item in self.document_faq(uid) else []
+        return catalog.answer_sources(sid)
+
+    def document_sources(self, uid, origin, *, fresh_menu=False):
+        links = self.sources_for_answer(uid, origin)
+        if not links:
+            return self.document_render(uid, self.document_route(uid, origin), remember=False)
+        state = self.nav_state(uid)
+        state.update(screen='sources:' + origin, helper_input=False, updated_at=time.time())
+        self.store.save_navigation(uid, state)
+        view = self.document_content.data['sources_view']
+        markup = self.nav_markup(uid, [[(view['back'], 'doc_sources_back')]])
+        markup['inline_keyboard'][:0] = [[{'text': label, 'url': url}] for label, url in links]
+        self.say(uid, view['title'] + '\n' + view['body'], markup, fresh_menu=fresh_menu)
 
     def refresh_queued_content(self):
         """Не доставляти закешований текст старої редакції після перезапуску."""
@@ -283,6 +327,16 @@ class DocumentNavigation:
 
     def document_callback(self, uid, route):
         state = self.nav_state(uid)
+        if route.startswith('doc_sources:'):
+            origin = route[len('doc_sources:'):]
+            if state['screen'] == origin and self.sources_for_answer(uid, origin):
+                return self.document_sources(uid, origin)
+            return
+        if route == 'doc_sources_back':
+            if state['screen'].startswith('sources:'):
+                origin = state['screen'][len('sources:'):]
+                return self.document_render(uid, self.document_route(uid, origin), remember=False)
+            return
         if route == 'doc_back':
             target = state['history'].pop() if state['history'] else ('M02' if state['confirmed'] else 'M01')
             self.store.save_navigation(uid, state)

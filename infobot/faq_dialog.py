@@ -102,7 +102,11 @@ class FAQDialogs:
             rows.append([(self.nav_label('support'), 'new')])
         rows.append([('Головне меню', 'menu')])
         markup = buttons(rows)
-        if item.get('source_url'):
+        if self.document_content and not edit:
+            links = self.document_content.answer_sources(item=item)
+            text, source_markup = self.answer_source_button(user_id, 'legacy_answer:' + identifier, text, [], links)
+            markup['inline_keyboard'][:0] = source_markup['inline_keyboard']
+        elif item.get('source_url'):
             markup['inline_keyboard'].insert(0, [{'text': 'Джерело інформації', 'url': item['source_url']}])
         self.say(user_id, text, markup)
 

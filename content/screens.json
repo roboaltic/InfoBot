@@ -11,35 +11,40 @@
       "verification_status": "verified_by_owner",
       "short_title": "Порядок №739",
       "document_date": "2022-06-24",
-      "citation_title": "Порядок, затверджений постановою КМУ від 24.06.2022 №739"
+      "citation_title": "Порядок, затверджений постановою КМУ від 24.06.2022 №739",
+      "client_title": "Порядок надання грантів № 739"
     },
     "S2": {
       "title": "Послуга на порталі Дія",
       "url": "https://diia.gov.ua/services/grant-na-pererobne-pidpriyemstvo",
       "checked_at": "2026-11-11",
       "verification_status": "as_provided_in_document",
-      "short_title": "Послуга Дії"
+      "short_title": "Послуга Дії",
+      "client_title": "Дія · грант на переробне підприємство"
     },
     "S3": {
       "title": "Оновлення програми від 28 жовтня 2026 року",
       "url": "https://me.gov.ua/News/Detail/54e05aaf-56cc-4b29-a81e-07cd4b39db5e?lang=uk-UA",
       "checked_at": "2026-11-11",
       "verification_status": "as_provided_in_document",
-      "short_title": "Повідомлення Мінекономіки"
+      "short_title": "Повідомлення Мінекономіки",
+      "client_title": "Мінекономіки · оновлення програми"
     },
     "S4": {
       "title": "Кінцеві строки подання заяв",
       "url": "https://diia.gov.ua/kincevi-stroki-podannya-zayav-na-otrimannya-granitiv/",
       "checked_at": "2026-11-11",
       "verification_status": "as_provided_in_document",
-      "short_title": "Календар Дії"
+      "short_title": "Календар Дії",
+      "client_title": "Дія · графік приймання заяв"
     },
     "S5": {
       "title": "Форми та критерії оцінювання за наказом № 2109",
       "url": "https://zakon.rada.gov.ua/laws/show/z0840-22#Text",
       "checked_at": "2026-11-11",
       "verification_status": "as_provided_in_document",
-      "short_title": "Наказ №2109: форми та критерії"
+      "short_title": "Наказ №2109: форми та критерії",
+      "client_title": "Наказ Мінекономіки № 2109"
     },
     "S7": {
       "title": "Постанова КМУ від 23.10.2026 № 1326 про внесення змін до порядків № 739 і № 98",
@@ -49,7 +54,9 @@
       "short_title": "Зміни №1326",
       "document_date": "2026-10-23",
       "effective_from": "2026-10-27",
-      "citation_title": "Постанова КМУ від 23.10.2026 №1326"
+      "citation_title": "Постанова КМУ від 23.10.2026 №1326",
+      "client_title": "Постанова КМУ № 1326",
+      "client_role": "amendment_metadata"
     },
     "S8": {
       "title": "Офіційний текст постанови КМУ від 23.10.2026 №1326",
@@ -59,7 +66,9 @@
       "effective_from": "2026-10-27",
       "checked_at": "2026-11-11",
       "verification_status": "verified_by_owner",
-      "citation_title": "Постанова КМУ від 23.10.2026 №1326"
+      "citation_title": "Постанова КМУ від 23.10.2026 №1326",
+      "client_title": "Постанова КМУ № 1326 · офіційний текст",
+      "client_role": "amendment_metadata"
     }
   },
   "screens": {
@@ -102,7 +111,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     },
     "D01": {
       "screen_id": "D01",
@@ -183,7 +193,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": false
     },
     "D02": {
       "screen_id": "D02",
@@ -264,7 +275,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": false
     },
     "D03": {
       "screen_id": "D03",
@@ -342,7 +354,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": false
     },
     "D04": {
       "screen_id": "D04",
@@ -425,7 +438,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": false
     },
     "R00": {
       "screen_id": "R00",
@@ -492,7 +506,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": false
     },
     "R50": {
       "screen_id": "R50",
@@ -549,7 +564,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "R70": {
       "screen_id": "R70",
@@ -606,7 +622,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "R80": {
       "screen_id": "R80",
@@ -668,7 +685,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "H01": {
       "screen_id": "H01",
@@ -730,7 +748,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": false
     },
     "H02": {
       "screen_id": "H02",
@@ -826,7 +845,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": false
     },
     "H03": {
       "screen_id": "H03",
@@ -896,7 +916,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": false
     },
     "H04": {
       "screen_id": "H04",
@@ -963,7 +984,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": false
     },
     "M02": {
       "screen_id": "M02",
@@ -1014,7 +1036,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     },
     "F00": {
       "screen_id": "F00",
@@ -1108,7 +1131,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": false
     },
     "F01": {
       "screen_id": "F01",
@@ -1181,7 +1205,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "F02": {
       "screen_id": "F02",
@@ -1243,7 +1268,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "F03": {
       "screen_id": "F03",
@@ -1305,7 +1331,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "A00": {
       "screen_id": "A00",
@@ -1476,7 +1503,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": false
     },
     "A01": {
       "screen_id": "A01",
@@ -1562,7 +1590,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "A02": {
       "screen_id": "A02",
@@ -1619,7 +1648,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "A03": {
       "screen_id": "A03",
@@ -1681,7 +1711,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "A04": {
       "screen_id": "A04",
@@ -1738,7 +1769,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "A05": {
       "screen_id": "A05",
@@ -1832,7 +1864,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "B00": {
       "screen_id": "B00",
@@ -2003,7 +2036,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": false
     },
     "B01": {
       "screen_id": "B01",
@@ -2073,7 +2107,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "B02": {
       "screen_id": "B02",
@@ -2151,7 +2186,8 @@
           "url": "https://zakon.rada.gov.ua/laws/card/1326-2026-%D0%BF"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "B03": {
       "screen_id": "B03",
@@ -2241,7 +2277,8 @@
           "scope": "Абзаци 25–34 підпункту 18, підпункти 20 та 21 пункту 1 затверджених змін"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "B04": {
       "screen_id": "B04",
@@ -2378,7 +2415,8 @@
           "scope": "Абзаци 25–34 підпункту 18, підпункти 20 та 21 пункту 1 затверджених змін"
         }
       ],
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "Q00": {
       "screen_id": "Q00",
@@ -2439,7 +2477,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     },
     "Q01": {
       "screen_id": "Q01",
@@ -2486,7 +2525,8 @@
         }
       ],
       "faq_id": "q01",
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "Q02": {
       "screen_id": "Q02",
@@ -2567,7 +2607,8 @@
         }
       ],
       "faq_id": "q02",
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "Q03": {
       "screen_id": "Q03",
@@ -2664,7 +2705,8 @@
         }
       ],
       "faq_id": "q03",
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "Q04": {
       "screen_id": "Q04",
@@ -2729,7 +2771,8 @@
         }
       ],
       "faq_id": "q04",
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "Q05": {
       "screen_id": "Q05",
@@ -2794,7 +2837,8 @@
         }
       ],
       "faq_id": "q05",
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "Q06": {
       "screen_id": "Q06",
@@ -2851,7 +2895,8 @@
         }
       ],
       "faq_id": "q06",
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "Q07": {
       "screen_id": "Q07",
@@ -2908,7 +2953,8 @@
         }
       ],
       "faq_id": "q07",
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "Q08": {
       "screen_id": "Q08",
@@ -2981,7 +3027,8 @@
         }
       ],
       "faq_id": "q08",
-      "legal_status": "normative_basis_verified_by_owner"
+      "legal_status": "normative_basis_verified_by_owner",
+      "sources_enabled": true
     },
     "P01": {
       "screen_id": "P01",
@@ -3007,7 +3054,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     },
     "P02": {
       "screen_id": "P02",
@@ -3038,7 +3086,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     },
     "P03": {
       "screen_id": "P03",
@@ -3074,7 +3123,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     },
     "P04": {
       "screen_id": "P04",
@@ -3105,7 +3155,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     },
     "P05": {
       "screen_id": "P05",
@@ -3136,7 +3187,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     },
     "P06": {
       "screen_id": "P06",
@@ -3172,7 +3224,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     },
     "P07": {
       "screen_id": "P07",
@@ -3218,7 +3271,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     },
     "P08": {
       "screen_id": "P08",
@@ -3239,7 +3293,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     },
     "P09": {
       "screen_id": "P09",
@@ -3265,7 +3320,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     },
     "P10": {
       "screen_id": "P10",
@@ -3291,7 +3347,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     },
     "P11": {
       "screen_id": "P11",
@@ -3312,7 +3369,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     },
     "E01": {
       "screen_id": "E01",
@@ -3333,7 +3391,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     },
     "E02": {
       "screen_id": "E02",
@@ -3364,7 +3423,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     },
     "E03": {
       "screen_id": "E03",
@@ -3395,7 +3455,8 @@
       "effective_from": null,
       "effective_to": null,
       "references": [],
-      "legal_status": "product_content_approved"
+      "legal_status": "product_content_approved",
+      "sources_enabled": false
     }
   },
   "faq_page_size": 4,
@@ -3737,5 +3798,12 @@
       "verification": "official_html",
       "html_sha256": "354b6a65eba91c921599b03e4c1c9ed098794716b27cc86b21a011971209189d"
     }
+  },
+  "sources_view": {
+    "title": "Документи до цієї відповіді",
+    "body": "Оберіть документ, щоб перейти до відповідного положення.",
+    "button": "Джерела",
+    "back": "Назад до відповіді",
+    "notice": "Більше інформації — за кнопкою «Джерела»."
   }
 }
